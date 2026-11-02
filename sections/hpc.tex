@@ -1,0 +1,400 @@
+%% ====================================================================
+%% The HPC: what it is, connecting, working on it
+%% ====================================================================
+
+\section{What is the HPC}
+
+\begin{frame}{What is the HPC?}
+\begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+        \begin{itemize}
+            \item HPC stands for High-performance computing
+            \item The HPC is a cluster of computers that work together as a single system
+            \item The computers run Rocky Linux
+            \item It is shared by many groups, and managed through SLURM
+        \end{itemize}
+    \end{column}
+
+    \begin{column}{0.48\textwidth}
+        \includegraphics[width=\linewidth]{cluster_draw.png}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Who makes use of the HPC?}
+\begin{itemize}
+    \item University Medical Center Utrecht
+          \begin{itemize}
+              \item Division Biomedical
+              \item Division Cardiology \& Pulmonology
+              \item Division Imaging
+              \item Division Internal Medicine
+              \item Julius Center
+              \item Division Laboratories \& Pharmacy
+              \item Division Neuroscience
+          \end{itemize}
+    \item Utrecht University
+          \begin{itemize}
+              \item Science Faculty, Department of Information and Computing Sciences
+              \item Science Faculty, Department of Biology
+          \end{itemize}
+    \item Hubrecht Institute
+    \item Princess Máxima Center for Pediatric Oncology
+\end{itemize}
+\end{frame}
+
+\begin{frame}{An HPC node is a much bigger computer than your laptop}
+\centering\footnotesize
+\begin{tabular}{@{}llll@{}}
+    \toprule
+               & \textbf{My UMC laptop} & \textbf{One HPC node} & \textbf{The cluster} \\
+    \midrule
+    CPU cores  & 8 (Apple M3)           & 24--48                & 2172 in 57 nodes     \\
+    Memory     & 8 GB                   & 256 GB -- 1 TB        &                      \\
+    Local disk & 560 GB SSD             & 1--2 TB tmpspace      & + shared storage     \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.5cm}
+\raggedright
+\begin{itemize}
+    \item \textbf{Core}: does one computation at a time. 8 cores: 8 things at once
+    \item \textbf{Memory} (RAM): where data sits while it is being worked on.
+          Fast, but temporary
+    \item \textbf{Disk}: where your files are kept, also when the computer is off
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Login, compute and transfer nodes}
+\begin{columns}[c]
+    \begin{column}{0.52\textwidth}
+        \small
+        \begin{itemize}
+            \item \textbf{Login nodes} (\texttt{hpcs05}, \texttt{hpcs06}): log in, edit scripts, submit jobs.
+                  \alert{Never run analyses here}
+            \item \textbf{Compute nodes} (57): where your jobs run.
+                  You get there through SLURM
+            \item \textbf{Transfer nodes} (\texttt{hpct04}, \texttt{hpct05}): move data to and from the HPC
+            \item \textbf{Shared storage}: every node sees the same files
+        \end{itemize}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+        \includegraphics[width=\linewidth]{cluster_draw.png}
+    \end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{SLURM decides who runs what, and where}
+\begin{itemize}
+    \item The HPC is shared: hundreds of users, one set of nodes
+    \item You ask SLURM for resources: cores, memory, time, disk space
+    \item Your job waits in a queue until a node with those resources is free
+    \item Fair share: if your group used little recently, your jobs start sooner
+    \item Small, short requests find a free spot faster
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Where to keep your files on the HPC}
+\centering\footnotesize
+\begin{tabularx}{\textwidth}{@{}lll>{\raggedright\arraybackslash}X@{}}
+    \toprule
+    \textbf{Where} & \textbf{Path}                 & \textbf{Size} & \textbf{Use it for}                         \\
+    \midrule
+    Home           & \texttt{/home/<group>/<user>} & 7 GB          & Scripts, settings                           \\
+    Project        & \texttt{/hpc/<group>/<user>}  & Group's       & Data, results, Conda envs                   \\
+    tmpspace       & \texttt{/scratch/<jobid>}     & Requested     & Fast disk during a job, on the compute node \\
+    \bottomrule
+\end{tabularx}
+
+\vspace{0.2cm}
+\raggedright\small
+\begin{itemize}
+    \item Your home directory is small: keep big data in the project directory
+    \item The project quota (several TB) is shared by your whole group: as a rule of thumb, use at most 1 TB yourself
+    \item tmpspace is deleted when the job ends: copy your results back
+    \item \alert{There are no backups}: keep a copy of your raw data elsewhere, and your scripts in Git
+\end{itemize}
+\end{frame}
+
+\section{Connecting to the HPC}
+\begin{frame}[fragile]{Creating a SSH key for HPC usage}
+\small
+Need HPC access?
+Do this \textbf{before the workshop}: access takes time.
+The HPC team wants a separate key for the HPC, so do not reuse your GitHub key.
+\begin{lstlisting}
+mkdir -p ~/.ssh
+cd ~/.ssh
+ssh-keygen -t ed25519 -C "HPC" -f ~/.ssh/id_ed25519_hpc
+\end{lstlisting}
+When prompted, enter a strong, secure passphrase.
+This will create two files: id\_ed25519\_hpc, and id\_ed25519\_hpc.pub.
+\par\medskip
+Please mail the id\_ed25519\_hpc.pub file to hpcsupport@umcutrecht.nl
+\par\medskip
+\begin{block}{Already have HPC access?}
+    If \texttt{ls \texttt{\textasciitilde/.ssh}} shows \texttt{id\_ed25519\_hpc}, you already have this key: skip this slide and keep using it.
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Logging in for the first time}
+\begin{lstlisting}
+ssh-add ~/.ssh/id_ed25519_hpc     # load your HPC key
+ssh <your username>@hpcs05.op.umcutrecht.nl
+\end{lstlisting}
+The first time, ssh asks if you trust the server:
+\begin{lstlisting}[style=output, basicstyle=\ttfamily\scriptsize\color{darkgray}]
+The authenticity of host 'hpcs05.op.umcutrecht.nl' can't be established.
+ED25519 key fingerprint is SHA256:...
+Are you sure you want to continue connecting (yes/no/[fingerprint])?
+\end{lstlisting}
+\begin{itemize}
+    \item Type \texttt{yes}: ssh remembers the server, and only asks once
+    \item \texttt{ssh-add} asks for the passphrase of your key, once per session.
+          You will not see it as you type
+    \item You are in when the prompt shows the server name: \texttt{[you@hpcs05 \textasciitilde]\$}
+    \item \texttt{exit} logs you out again
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Using On-demand}
+\small
+On-demand is a web portal to the HPC: browse files, open a terminal, or start RStudio and Jupyter, all in your browser.
+Go to one of:
+
+\begin{itemize}
+    \item hpcs05.op.umcutrecht.nl
+    \item hpcs06.op.umcutrecht.nl
+\end{itemize}
+
+\includegraphics[width=\linewidth]{ondemand1.png}
+\end{frame}
+
+\begin{frame}[fragile]{Moving data to and from the HPC}
+\small
+\begin{itemize}
+    \item Use the \textbf{transfer nodes} for data: not the login nodes
+    \item \texttt{rsync} only copies what changed, and can continue after a broken connection
+    \item Check big transfers with \texttt{md5sum} afterwards
+\end{itemize}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+# from your laptop to the HPC
+rsync -av --progress data/ \
+    <you>@hpct04.op.umcutrecht.nl:/hpc/<group>/<user>/data/
+
+# from the HPC back to your laptop
+rsync -av \
+    <you>@hpct04.op.umcutrecht.nl:/hpc/<group>/<user>/results/ \
+    results/
+\end{lstlisting}
+    {\footnotesize The trailing \texttt{/} matters: \texttt{data/} copies what is \emph{in} \texttt{data}}
+\end{frame}
+
+\section{Working on the HPC}
+\begin{frame}{Asking SLURM for resources}
+\centering\footnotesize
+\begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Option}                         & \textbf{What you ask for} & \textbf{Example}               \\
+    \midrule
+    \texttt{-c}, \texttt{-{}-cpus-per-task} & Number of cores           & \texttt{-c 4}                  \\
+    \texttt{-{}-mem}                        & Memory                    & \texttt{-{}-mem=8G}            \\
+    \texttt{-{}-time}                       & Maximum run time          & \texttt{-{}-time=02:00:00}     \\
+    \texttt{-{}-gres=tmpspace:<size>}       & Local disk on the node    & \texttt{-{}-gres=tmpspace:50G} \\
+    \texttt{-A}, \texttt{-{}-account}       & Your group's account      & \texttt{-A dla\_mm}            \\
+    \bottomrule
+\end{tabular}
+
+\vspace{0.4cm}
+\raggedright
+\begin{itemize}
+    \item These are limits: use more memory or time, and SLURM stops your job
+    \item The job then ends as \texttt{OUT\_OF\_MEMORY} or \texttt{TIMEOUT}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Using srun for interactive sessions}
+Requesting an interactive job:
+\begin{lstlisting}
+srun -c 2 --mem=4G --time=01:00:00 --pty bash
+\end{lstlisting}
+\begin{itemize}
+    \item \texttt{-{}-pty bash}: give me a terminal on the compute node
+    \item SLURM finds a node, and your prompt changes to that node's name
+    \item Everything you run now uses the requested resources
+    \item Type \texttt{exit} when you are done: the resources go back to the pool
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Demo: from the login node to a compute node}
+\hpcbadge
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+ssh <your username>@hpcs05.op.umcutrecht.nl
+hostname                    # hpcs05: the login node
+cd /hpc/<group>/<user>
+git clone https://github.com/bayraktar1/HPC_intro.git
+cd HPC_intro/exercise_data
+
+srun -c 1 --mem=1G --time=00:30:00 --pty bash
+hostname                    # n0...: a compute node
+grep -c "^>" */assembly.fasta
+exit                        # back on the login node
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Using sbatch to submit scripts}
+A job script is a normal script with \texttt{\#SBATCH} lines at the top:
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+#!/bin/bash
+#SBATCH --job-name=count        # name in the queue
+#SBATCH --output=count_%j.log   # %j becomes the job ID
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=1G
+#SBATCH --time=00:05:00
+
+for f in */assembly.fasta; do
+    echo "$f"
+    grep -c "^>" "$f"
+done
+\end{lstlisting}
+\begin{lstlisting}
+sbatch job.sh
+\end{lstlisting}
+\begin{lstlisting}[style=output]
+Submitted batch job 1234567
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{A real job script: assembling genomes}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+#!/bin/bash
+#SBATCH --job-name=unicycler
+#SBATCH --output=output.log
+#SBATCH --error=error.log
+#SBATCH --cpus-per-task=16
+#SBATCH --time=72:00:00
+#SBATCH --gres=tmpspace:100G
+#SBATCH --mem=32G
+
+# Go through all R1 fastq files in the current directory
+for r1_file in *_R1*.fastq*; do
+    # Get the name of the paired read
+    r2_file="${r1_file/_R1/_R2}"
+    ...
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}{Try it: write a job script}
+\small
+This works for everyone: to the shell, \texttt{\#SBATCH} lines are just comments.
+\begin{enumerate}
+    \item In \texttt{exercise\_data}, create \texttt{job.sh}: the \texttt{\#SBATCH} lines from the previous slides, then your loop from \texttt{count.sh}
+    \item \textbf{No HPC access}: run it on your laptop with \texttt{bash job.sh}
+          \expect{the same output as \texttt{./count.sh}}
+    \item \textbf{HPC access}: submit it with \texttt{sbatch job.sh}, follow it with
+          \texttt{squeue -u <your username>}, and read the log when it is done
+          \expect{\texttt{count\_<jobid>.log} with the same output}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Checking in on jobs/queue}
+\begin{lstlisting}
+squeue                      # everything in the queue
+squeue -u <your username>   # only your jobs
+squeue -A dla_mm            # your group's jobs
+scancel <jobid>             # stop a job
+sacct -j <jobid>            # a job that has finished
+\end{lstlisting}
+\small
+\begin{itemize}
+    \item State \texttt{PD}: pending, waiting for resources.
+          The last column says why
+    \item State \texttt{R}: running, on the node in the last column
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Requesting resources does not equal using them}
+\begin{itemize}
+    \item Requested resources are reserved for you: nobody else can use them, also when your job does not
+    \item Tell your tool to use them, usually with an option like
+          \texttt{-{}-threads} or \texttt{-{}-mem}
+    \item More cores is not always faster.
+          Two people dig a hole much faster than one, but with twenty people most of them stand around doing nothing
+    \item Check what your job really used with \texttt{seff}, and adjust next time
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Checking actual resource usage}
+\begin{lstlisting}
+seff <jobid>
+\end{lstlisting}
+\begin{lstlisting}[style=output]
+Job ID: 1234567
+State: COMPLETED (exit code 0)
+Cores per node: 8
+CPU Utilized: 05:31:12
+CPU Efficiency: 82.80% of 06:40:00 core-walltime
+Job Wall-clock time: 00:50:00
+Memory Utilized: 6.10 GB
+Memory Efficiency: 76.25% of 8.00 GB
+\end{lstlisting}
+    {\small A well-sized job: most of the cores and memory were used}
+\end{frame}
+
+\begin{frame}[fragile]{Try it: what went wrong?}
+\begin{columns}[T]
+    \column{0.49\textwidth}
+    \textbf{Job A}
+    \begin{lstlisting}[style=output, basicstyle=\ttfamily\tiny\color{darkgray}]
+State: COMPLETED (exit code 0)
+Cores per node: 16
+CPU Efficiency: 6.25% of 03:50:24
+Job Wall-clock time: 00:14:24
+Memory Utilized: 1.20 GB
+Memory Efficiency: 3.75% of 32.00 GB
+\end{lstlisting}
+    \column{0.49\textwidth}
+    \textbf{Job B}
+    \begin{lstlisting}[style=output, basicstyle=\ttfamily\tiny\color{darkgray}]
+State: OUT_OF_MEMORY (exit code 0)
+Cores per node: 4
+CPU Efficiency: 91.45% of 00:45:00
+Job Wall-clock time: 00:11:15
+Memory Utilized: 7.98 GB
+Memory Efficiency: 99.75% of 8.00 GB
+\end{lstlisting}
+\end{columns}
+\small
+What went wrong, and what would you request next time?
+\pause
+\begin{itemize}
+    \item \textbf{A}: used 1 of 16 cores and 1.2 of 32 GB\@. Was the tool told to use 16 threads?
+          If not, request \texttt{-c 1 -{}-mem=2G}
+    \item \textbf{B}: ran out of memory and was stopped.
+          Request more, e.g.\ \texttt{-{}-mem=16G}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Try it: plan your resources}
+You want to assemble 20 genomes.
+The tool uses 8 threads, about 10 GB of memory and 30 minutes per genome.
+What do you request?
+\pause
+\begin{itemize}
+    \item Start small: one genome with \texttt{-c 8 -{}-mem=12G -{}-time=01:00:00}, a bit more than needed.
+          Check it with \texttt{seff}
+    \item All 20 in one job: 20 $\times$ 30 minutes = 10 hours, so \texttt{-{}-time=12:00:00}
+    \item Or 20 separate jobs: they can run at the same time, and each one waits less in the queue
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Use the HPC fairly}
+\begin{itemize}
+    \item Never run analyses on the login or transfer nodes
+    \item Request what you need, not the maximum: check with \texttt{seff}
+    \item Move big data through the transfer nodes
+    \item Clean up: remove data you no longer need from the project directory
+    \item Stuck?
+          Ask your colleagues, or mail hpcsupport@umcutrecht.nl
+\end{itemize}
+\end{frame}

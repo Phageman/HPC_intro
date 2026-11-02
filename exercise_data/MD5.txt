@@ -1,0 +1,6 @@
+0f5b3e0b980fc9e798060ee76cace203  sample_A/sample_A_R1.fastq.gz
+e2c24a3f687c3f978586e4d57e7aca1f  sample_A/sample_A_R2.fastq.gz
+8210707b4035dde66aee4ff268595f52  sample_B/sample_B_R1.fastq.gz
+4d7ba0d6230f9ee3b557c21e0286e115  sample_B/sample_B_R2.fastq.gz
+6b3d8d3635917ddf6ba4f912da28822f  sample_C/sample_C_R1.fastq.gz
+38c776e293ffb4cbcb661ee7724621d8  sample_C/sample_C_R2.fastq.gz

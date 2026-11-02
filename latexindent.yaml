@@ -1,0 +1,16 @@
+# Settings for latexindent, so the source keeps one layout.
+# Format all files:
+#   latexindent -l -s -w -c=/tmp main.tex sections/*.tex
+# (-l reads this file, -w overwrites in place, -c puts backups in /tmp)
+
+defaultIndent: "    "
+
+# Do not indent everything inside the document or a frame
+noAdditionalIndent:
+    document: 1
+    frame: 1
+
+# Never touch code blocks: spaces before \end{lstlisting}
+# would become part of the code block
+verbatimEnvironments:
+    lstlisting: 1

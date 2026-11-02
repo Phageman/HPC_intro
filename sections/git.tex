@@ -1,0 +1,133 @@
+%% ====================================================================
+%% Git
+%% ====================================================================
+
+\section{Git}
+\begin{frame}{Git keeps track of every version of your code}
+\begin{columns}[c]
+    \column{0.65\textwidth}
+    \begin{itemize}
+        \item Git is a version control system
+        \item It saves snapshots (\emph{commits}) of your files
+        \item Go back to any earlier version
+        \item See who changed what, when and why
+        \item Work together on the same code without overwriting each other
+    \end{itemize}
+    \column{0.35\textwidth}
+    \begin{center}
+        \includegraphics[height=1.2cm]{logo/github.png} \hspace{0.3cm}
+        \includegraphics[height=1.2cm]{logo/gitlab.png}
+    \end{center}
+    \centering\footnotesize
+    GitHub and GitLab host Git repositories online
+\end{columns}
+\end{frame}
+
+\begin{frame}{Git basics}
+\centering\small
+\begin{tabular}{@{}lp{0.7\textwidth}@{}}
+    \toprule
+    \textbf{Term} & \textbf{What it means}                                                          \\
+    \midrule
+    Repository    & A project folder whose history is tracked by Git                                \\
+    Clone         & Download a copy of a repository to your computer or the HPC                     \\
+    Commit        & Save a snapshot of your changes, with a message describing them                 \\
+    Push          & Upload your commits to the online repository                                    \\
+    Pull          & Download the latest commits from the online repository                          \\
+    Fork          & Your own online copy of someone else's repository, which you are free to change \\
+    \bottomrule
+\end{tabular}
+\end{frame}
+
+\begin{frame}{How fork, clone, push and pull fit together}
+\centering
+\begin{tikzpicture}[
+        box/.style={draw, rounded corners, fill=backcolour, minimum width=3.6cm,
+                minimum height=1cm, align=center, font=\small},
+        arr/.style={-Stealth, thick},
+        lbl/.style={font=\footnotesize\ttfamily, fill=white, inner sep=1pt}
+    ]
+    \node[box] (orig) at (0,2.6)  {Original repository\\{\footnotesize someone else's, online}};
+    \node[box] (fork) at (6,2.6)  {Your fork\\{\footnotesize yours, online}};
+    \node[box] (local) at (6,0)   {Local copy\\{\footnotesize laptop or HPC}};
+
+    \draw[arr] (orig) -- node[lbl, above] {fork} (fork);
+    \draw[arr] ([xshift=-0.6cm]fork.south) -- node[lbl, left] {clone / pull} ([xshift=-0.6cm]local.north);
+    \draw[arr] ([xshift=0.6cm]local.north) -- node[lbl, right] {push} ([xshift=0.6cm]fork.south);
+    \path (local) edge[arr, loop left, min distance=1.2cm] node[lbl, left] {commit} (local);
+\end{tikzpicture}
+
+\vspace{0.4cm}
+\footnotesize Your own repository?
+Skip the fork and clone it directly.
+\end{frame}
+
+\begin{frame}[fragile]{The basic Git workflow}
+\begin{lstlisting}
+git clone https://github.com/<user>/<repo>.git
+cd <repo>
+
+git pull                # get the latest changes
+# ... edit your files ...
+git status              # what has changed?
+git add <file>          # stage changes for the commit
+git commit -m "Describe what you changed"
+git push                # upload your commits
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Exercises: make your own copy with a fork}
+\begin{enumerate}
+    \item Log in on GitHub, or create an account
+    \item Go to \texttt{github.com/bayraktar1/HPC\_intro} and click
+          \textbf{Fork} to make your own copy
+    \item The clone you made at the start still points to the original repository.
+          Check it:
+\end{enumerate}
+\begin{lstlisting}
+cd ~/HPC_intro/exercise_data
+git remote -v           # where does this clone come from?
+\end{lstlisting}
+\begin{lstlisting}[style=output]
+origin  https://github.com/bayraktar1/HPC_intro.git (fetch)
+origin  https://github.com/bayraktar1/HPC_intro.git (push)
+\end{lstlisting}
+    {\small Later in this section you point it to your fork, so you can push your answers}
+\end{frame}
+
+\begin{frame}[fragile]{Exercise: set up your SSH key}
+\small
+Already have a key?
+If \texttt{ls \texttt{\textasciitilde/.ssh}} shows a \texttt{.pub} file, e.g.\ \texttt{id\_ed25519.pub}, use that one and skip step 1.
+Not \texttt{id\_ed25519\_hpc.pub}: that one is only for the HPC.
+\begin{enumerate}
+    \item Create a key pair: press Enter for the default location, then choose a passphrase
+    \item Print your public key and copy it
+    \item On GitHub: \textbf{Settings} $\rightarrow$ \textbf{SSH and GPG keys}
+          $\rightarrow$ \textbf{New SSH key}, and paste it
+    \item Test the connection
+\end{enumerate}
+\begin{lstlisting}
+ssh-keygen -t ed25519 -C "<your email>"   # step 1
+cat ~/.ssh/id_ed25519.pub                 # step 2
+ssh -T git@github.com                     # step 4
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Exercise: save your work in your fork}
+\small
+Point your clone to your fork, over SSH so your key does the work:
+\begin{lstlisting}
+git remote set-url origin \
+    git@github.com:<your-username>/HPC_intro.git
+git remote -v           # check: now your fork
+\end{lstlisting}
+Then commit and push your answers:
+\begin{lstlisting}
+git status              # what has changed?
+git add exercises/notes.txt count.sh
+git commit -m "Add my exercise answers"
+git push
+\end{lstlisting}
+Refresh your fork on GitHub: your files are there!
+\end{frame}

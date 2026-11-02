@@ -1,0 +1,101 @@
+%% ====================================================================
+%% Appendix: extra slides and cheat sheet
+%% ====================================================================
+
+\appendix
+\begin{frame}[fragile]{Extra: Pixi is a directory-based Conda package manager}
+\begin{columns}[c]
+    \column{0.75\textwidth}
+    \small
+    \begin{itemize}
+        \item By the creators of Mamba, uses the Conda ecosystem
+        \item One environment per project folder, no base environment
+        \item Writes a lock file automatically
+        \item Tasks: save the commands of your project
+    \end{itemize}
+    \column{0.22\textwidth}
+    \centering
+    \includegraphics[height=1.8cm]{logo/pixi.png}
+\end{columns}
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+pixi init my_project -c conda-forge -c bioconda
+cd my_project
+pixi add seqkit                        # also updates pixi.lock
+pixi workspace platform add linux-64   # lock for the HPC too
+pixi task add stats "seqkit stats *.fasta"
+pixi run stats
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[plain]
+\tiny
+{\usebeamercolor[fg]{structure}\usebeamerfont{frametitle} Cheat sheet}
+\hfill \texttt{<...>} = fill in your own value
+\vspace{0.2cm}
+
+\begin{columns}[T, onlytextwidth]
+    \column{0.47\textwidth}
+    \begin{tabularx}{\linewidth}{@{}l@{\hspace{6pt}}>{\raggedright\arraybackslash}X@{}}
+        \multicolumn{2}{@{}l}{\textbf{\usebeamercolor[fg]{structure}Moving around}} \\
+        \texttt{pwd}                           & Where am I?                        \\
+        \texttt{ls}, \texttt{ls -lh}           & List files                         \\
+        \texttt{cd <dir>}, \texttt{cd ..}      & Enter dir / go up                  \\
+        \texttt{mkdir <dir>}                   & Make a directory                   \\
+        \texttt{rmdir <dir>}                   & Remove empty dir                   \\[3pt]
+        \multicolumn{2}{@{}l}{\textbf{\usebeamercolor[fg]{structure}Files}}         \\
+        \texttt{cat <file>}                    & Print a file                       \\
+        \texttt{head -n <N> <file>}            & First N lines                      \\
+        \texttt{less <file>}                   & Scroll (\texttt{q} quits)          \\
+        \texttt{wc -l <file>}                  & Count lines                        \\
+        \texttt{cp <file> <copy>}              & Copy                               \\
+        \texttt{mv <file> <new>}               & Move or rename                     \\
+        \texttt{rm <file>}                     & Delete: no undo!                   \\
+        \texttt{nano <file>}                   & Edit (\texttt{Ctrl+X} quits)       \\
+        \texttt{chmod +x <file>}               & Make executable                    \\
+        \texttt{md5sum <file>}                 & Checksum of a file                 \\
+        \texttt{md5sum -c <list>}              & Verify against a list              \\[3pt]
+        \multicolumn{2}{@{}l}{\textbf{\usebeamercolor[fg]{structure}Searching}}     \\
+        \texttt{find <dir> -name "*.fasta"}    & Find files by name                 \\
+        \texttt{grep "<pattern>" <file>}       & Lines that match                   \\
+        \texttt{grep -c "<pattern>" <file>}    & Count matches                      \\
+        \texttt{grep -i "<pattern>" <file>}    & Ignore case                        \\
+        \texttt{<cmd> \texttt{\textbar} <cmd>} & Pipe output onward                 \\
+    \end{tabularx}
+
+    \column{0.47\textwidth}
+    \begin{tabularx}{\linewidth}{@{}l@{\hspace{6pt}}>{\raggedright\arraybackslash}X@{}}
+        \multicolumn{2}{@{}l}{\textbf{\usebeamercolor[fg]{structure}Loops and sessions}} \\
+        \multicolumn{2}{@{}l}{\texttt{for f in *.fasta; do <command> "\$f"; done}}       \\
+        \texttt{screen -S <name>}               & New session                            \\
+        \texttt{Ctrl+A D}                       & Detach session                         \\
+        \texttt{screen -r <name>}               & Reattach                               \\[3pt]
+        \multicolumn{2}{@{}l}{\textbf{\usebeamercolor[fg]{structure}Git}}                \\
+        \texttt{git clone <url>}                & Copy a repository                      \\
+        \texttt{git pull}                       & Get latest changes                     \\
+        \texttt{git status}                     & Show changes                           \\
+        \texttt{git add <file>}                 & Stage changes                          \\
+        \texttt{git commit -m "<message>"}      & Save a snapshot                        \\
+        \texttt{git push}                       & Upload commits                         \\[3pt]
+        \multicolumn{2}{@{}l}{\textbf{\usebeamercolor[fg]{structure}Conda}}              \\
+        \texttt{conda create -n <env> <pkg>}    & New environment                        \\
+        \texttt{conda activate <env>}           & Use an env                             \\
+        \texttt{conda install <pkg>}            & Install a package                      \\
+        \texttt{conda env list}                 & List your envs                         \\
+        \texttt{conda env export -{}-no-builds} & Export an env                          \\[3pt]
+        \multicolumn{2}{@{}l}{\textbf{\usebeamercolor[fg]{structure}HPC and SLURM}}      \\
+        \texttt{ssh-keygen -t ed25519}          & Make an SSH key                        \\
+        \multicolumn{2}{@{}l}{\texttt{ssh <you>@hpcs05.op.umcutrecht.nl}\ \ Log in}      \\
+        \texttt{srun <resources> -{}-pty bash}  & Interactive session                    \\
+        \texttt{sbatch <script.sh>}             & Submit a job                           \\
+        \texttt{squeue -u <user>}               & Your queued jobs                       \\
+        \texttt{seff <jobid>}                   & Job resource use                       \\
+        \texttt{scancel <jobid>}                & Stop a job                             \\
+        \texttt{sacct -j <jobid>}               & A finished job                         \\
+        \texttt{rsync -av <from> <to>}          & Copy data                              \\
+    \end{tabularx}
+\end{columns}
+
+\vspace{0.2cm}
+{\texttt{Tab} completes names, $\uparrow$ repeats a command, \texttt{Ctrl+C} stops one.
+    Never run analyses on the login or transfer nodes. Request resources with \texttt{srun} or \texttt{sbatch}, and tell your tool to use them (e.g.\ \texttt{-{}-threads}).}
+\end{frame}
