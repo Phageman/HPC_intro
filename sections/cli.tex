@@ -2,105 +2,98 @@
 %% Command line basics
 %% ====================================================================
 
-\section{Commandline basics}
+\section[CLI]{Command-line basics}
+\begin{frame}{Before we start: open a terminal}
+\begin{cmdtable}{ll}
+    \textbf{Computer} & \textbf{How to open a terminal}                \\ \midrule
+    Mac               & \cmd{Cmd+Space}, type \cmd{Terminal}, \cmd{Enter} \\
+    Windows           & Start menu: \textbf{Git Bash} (or WSL)         \\
+    Linux             & \cmd{Ctrl+Alt+T}                               \\
+    HPC               & A terminal in Open OnDemand (browser)          \\
+\end{cmdtable}
+\bigskip
+You type commands in the terminal and press \cmd{Enter} to run them
+
+\medskip
+\hint{Open OnDemand: \cmd{https://hpcs05.op.umcutrecht.nl}, more about it in the HPC section}
+\end{frame}
+
 \begin{frame}[fragile]{Before we start: get the data for today}
-Open a terminal: on a Mac the \textbf{Terminal} app, on Linux \texttt{Ctrl+Alt+T}.
-You start in your home directory.
-Copy these two lines exactly:
+Git clone the workshop repository
 \begin{lstlisting}
+cd ~                          # laptop: home
+cd /hpc/<group>/<user>/data   # HPC: data directory
 git clone https://github.com/bayraktar1/HPC_intro.git
 cd HPC_intro/exercise_data
 \end{lstlisting}
 \begin{itemize}
-    \item This downloads the workshop files, including the data for the exercises
-    \item What \texttt{git clone} does exactly: see the Git section later today
-    \item \texttt{git} not found?
-          On a Mac, accept the offer to install the developer tools.
-          On Linux: \texttt{sudo apt install git}
+    \item Never work in your home directory on the HPC
+    \item \cmd{git} not found? Raise your hand
+\end{itemize}
+\end{frame}
+
+\begin{frame}{How the exercises work}
+\begin{itemize}
+    \item The exercises are in \cmd{HPC_intro/exercises}, one file per section.
+          Easiest to read on GitHub: \cmd{github.com/bayraktar1/HPC_intro}
+    \item When a slide says \textbf{Exercises}, do the numbers it lists
+    \item Every exercise has a level:
+\end{itemize}
+\medskip
+\begin{tabular}{@{}l@{\hspace{2em}}l@{}}
+    \level{1} & everyone does these          \\
+    \level{2} & do these if you can          \\
+    \level{3} & optional, when you are early \\
+\end{tabular}
+\medskip
+\begin{itemize}
+    \item Stuck? Ask, or look in \cmd{exercises/solutions}
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Every command has the same anatomy}
-\centering
-\begin{tikzpicture}[
-        part/.style={font=\ttfamily\Large, inner sep=1pt, text height=1.6ex, text depth=0.5ex},
-        lbl/.style={font=\footnotesize, align=center, below=7pt},
-        br/.style={decorate, decoration={brace, mirror, amplitude=5pt}, thick}
-    ]
-    \node[part, anchor=base west] (cmd)  at (0,0) {ls};
-    \node[part, anchor=base west] (opt)  at ([xshift=1.6cm]cmd.base east) {-lh};
-    \node[part, anchor=base west] (arg)  at ([xshift=1.6cm]opt.base east) {sample\_B};
-    \draw[br] (cmd.south west)  -- (cmd.south east)  node[midway, lbl] {\textbf{command}\\what to run};
-    \draw[br] (opt.south west)  -- (opt.south east)  node[midway, lbl] {\textbf{options}\\how: details,\\readable sizes};
-    \draw[br] (arg.south west)  -- (arg.south east)  node[midway, lbl] {\textbf{argument}\\what to work on};
-\end{tikzpicture}
+\diagram{command-anatomy}
 
-\vspace{0.5cm}
-\raggedright
+\bigskip
 \begin{itemize}
-    \item \textbf{Options} start with \texttt{-} or \texttt{-{}-} and change what a command does
+    \item \textbf{Options} start with \cmd{-} or \cmd{--} and change what a command does
     \item \textbf{Arguments} tell it what to work on: a file, a directory
-    \item \texttt{<...>} on these slides: fill in your own value
+    \item \cmd{<...>} on these slides: fill in your own value
     \item Stuck?
-          \texttt{man ls} (press \texttt{q} to quit) or \texttt{ls -{}-help}
+          \cmd{man ls} (press \cmd{q} to quit) or \cmd{ls --help}
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Keyboard tricks that save you time}
-\centering\small
-\begin{tabular}{@{}ll@{}}
-    \toprule
-    \textbf{Keys}             & \textbf{What they do}               \\
-    \midrule
-    \texttt{Tab}              & Complete a file or command name     \\
-    \texttt{Tab Tab}          & Show all possible completions       \\
-    $\uparrow$ / $\downarrow$ & Previous / next command             \\
-    \texttt{Ctrl+R}           & Search your previous commands       \\
-    \texttt{Ctrl+C}           & Stop the running command            \\
-    \texttt{q}                & Quit \texttt{less} and \texttt{man} \\
-    \texttt{Ctrl+L}           & Clear the screen                    \\
-    \bottomrule
-\end{tabular}
-
-\vspace{0.5cm}
-\raggedright
-Use \texttt{Tab} all the time: it is faster, and it prevents typos in file names.
-\end{frame}
-
 \begin{frame}{Moving around: where am I and what is here?}
-\centering\small
-\begin{tabular}{@{}ll@{}}
-    \toprule
-    \textbf{Command}                           & \textbf{What it does}                                    \\
+\small
+\begin{cmdtable}{ll}
+    \textbf{Command}       & \textbf{What it does}                                 \\
     \midrule
-    \texttt{pwd}                               & Print where you are (working directory)                  \\
-    \texttt{ls}                                & List what is here                                        \\
-    \texttt{ls -lh <dir>}                      & List with details and readable sizes                     \\
-    \texttt{ls -a}                             & Also show hidden files: names that start with \texttt{.} \\
-    \texttt{cd <dir>}                          & Go into a directory                                      \\
-    \texttt{cd ..}                             & Go one level up                                          \\
-    \texttt{cd \textasciitilde} or \texttt{cd} & Go to your home directory                                \\
-    \texttt{mkdir <dir>}                       & Make a directory                                         \\
-    \bottomrule
-\end{tabular}
+    \cmd{pwd}              & Print where you are (working directory)               \\
+    \cmd{ls}               & List what is here                                     \\
+    \cmd{ls -lh <dir>}     & List with details and readable sizes                  \\
+    \cmd{ls -a}            & Also show hidden files: names that start with \cmd{.} \\
+    \cmd{cd <dir>}         & Go into a directory                                   \\
+    \cmd{cd ..}            & Go one level up                                       \\
+    \cmd{cd ~} or \cmd{cd} & Go to your home directory                             \\
+    \cmd{mkdir <dir>}      & Make a directory                                      \\
+\end{cmdtable}
 \end{frame}
 
 \begin{frame}[fragile]{Paths: how to get from here to there}
 \begin{columns}[T]
     \column{0.38\textwidth}
-    \small
-    \DTsetlength{0.2em}{0.8em}{0.2em}{0.4pt}{1.6pt}
-    \dirtree{%
-        .1 \texttt{\textasciitilde} \textrm{\textit{(your home)}}.
-        .2 HPC\_intro.
-        .3 exercise\_data\DTcomment{\textrm{$\leftarrow$}}.
-        .4 sample\_A.
-        .4 sample\_B.
-        .4 sample\_C.
-        .5 old.
-    }
+    \begin{lstlisting}[style=output]
+~  (your home)
+`-- HPC_intro
+    `-- exercise_data <-
+        |-- sample_A
+        |-- sample_B
+        `-- sample_C
+            `-- old
+\end{lstlisting}
     \column{0.6\textwidth}
-    \begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+    \begin{lstlisting}[style=footnotesize]
 # start in exercise_data
 cd sample_C       # down into sample_C
 cd old            # further down
@@ -112,155 +105,121 @@ cd ~/HPC_intro/exercise_data
                   # works from anywhere
 \end{lstlisting}
 \end{columns}
-\vspace{0.2cm}
+\medskip
 \small
 \begin{itemize}
-    \item \texttt{..} is one level up, \texttt{.} is where you are now
-    \item A path that starts with \texttt{/} or \texttt{\textasciitilde} works from anywhere.
-          Any other path starts from where you are now: check with \texttt{pwd}
+    \item \cmd{..} is one level up, \cmd{.} is where you are now
+    \item A path that starts with \cmd{/} or \cmd{~} works from anywhere.
+          Any other path starts from where you are now: check with \cmd{pwd}
 \end{itemize}
+\hint{On the HPC, \cmd{HPC_intro} is in \cmd{/hpc/<group>/<user>/data} instead of \cmd{~}}
 \end{frame}
 
-\begin{frame}{Try it: moving around}
-Start in \texttt{\textasciitilde/HPC\_intro/exercise\_data}
-\begin{enumerate}
-    \item Where are you?
-          Print your working directory
-          \expect{a path that ends in \texttt{HPC\_intro/exercise\_data}}
-    \item List what is here, then the details of \texttt{sample\_B}
-          \expect{3 files in \texttt{sample\_B}, with their sizes}
-    \item Go into \texttt{sample\_C/old}, then back to \texttt{exercise\_data} with one \texttt{cd}
-          \expect{\texttt{pwd} ends in \texttt{exercise\_data} again}
-    \item Make a directory called \texttt{exercises}, go into it, and back up
-\end{enumerate}
+\begin{frame}{Exercises: moving around}
+\begin{exlist}{1_command_line.md}
+    \ex{1.1}{Where am I?}{1}
+    \ex{1.2}{List and look}{1}
+    \ex{1.3}{Down and back up}{2}
+    \ex{1.4}{Your own directory}{1}
+\end{exlist}
+\end{frame}
+
+\begin{frame}{Keyboard tricks that save you time}
+\small
+\begin{cmdtable}{ll}
+    \textbf{Keys}             & \textbf{What they do}           \\
+    \midrule
+    \cmd{Tab}                 & Complete a file or command name \\
+    \cmd{Tab Tab}             & Show all possible completions   \\
+    $\uparrow$ / $\downarrow$ & Previous / next command         \\
+    \cmd{Ctrl+R}              & Search your previous commands   \\
+    \cmd{Ctrl+C}              & Stop the running command        \\
+    \cmd{q}                   & Quit \cmd{less} and \cmd{man}   \\
+    \cmd{Ctrl+L}              & Clear the screen                \\
+\end{cmdtable}
+
+\bigskip
+Use \cmd{Tab} all the time: it is faster and prevents typos in file names.
 \end{frame}
 
 \begin{frame}{Working with files}
-\centering\small
-\begin{tabular}{@{}ll@{}}
-    \toprule
-    \textbf{Command}            & \textbf{What it does}                                         \\
+\small
+\begin{cmdtable}{ll}
+    \textbf{Command}         & \textbf{What it does}                                   \\
     \midrule
-    \texttt{cat <file>}         & Print a whole file                                            \\
-    \texttt{head -n <N> <file>} & Print the first \texttt{N} lines                              \\
-    \texttt{less <file>}        & Scroll through a file (\texttt{q} quits)                      \\
-    \texttt{wc -l <file>}       & Count the lines                                               \\
-    \texttt{cp <file> <copy>}   & Copy a file                                                   \\
-    \texttt{mv <file> <new>}    & Move or rename a file                                         \\
-    \texttt{rm <file>}          & Delete a file: \alert{no undo, no trash!}                     \\
-    \texttt{mkdir <dir>}        & Make a directory                                              \\
-    \texttt{rmdir <dir>}        & Remove an empty directory                                     \\
-    \texttt{nano <file>}        & Edit a text file (\texttt{Ctrl+O} save, \texttt{Ctrl+X} quit) \\
-    \texttt{chmod +x <file>}    & Make a file executable                                        \\
-    \bottomrule
-\end{tabular}
+    \cmd{cat <file>}         & Print a whole file                                      \\
+    \cmd{head -n <N> <file>} & Print the first \cmd{N} lines                           \\
+    \cmd{less <file>}        & Scroll through a file (\cmd{q} quits)                   \\
+    \cmd{wc -l <file>}       & Count the lines                                         \\
+    \cmd{cp <file> <copy>}   & Copy a file                                             \\
+    \cmd{mv <file> <new>}    & Move or rename a file                                   \\
+    \cmd{rm <file>}          & Delete a file: \alert{no undo, no trash!}               \\
+    \cmd{rmdir <dir>}        & Remove an empty directory                               \\
+    \cmd{nano <file>}        & Edit a file (\cmd{Ctrl+O}, \cmd{Enter}: save; \cmd{Ctrl+X}: quit) \\
+\end{cmdtable}
 \end{frame}
 
-\begin{frame}{Try it: working with files}
-\small
-\begin{enumerate}
-    \item Print the first 3 lines of \texttt{sample\_B/assembly.fasta}
-          \expect{a header line starting with \texttt{>}, then 2 lines of sequence}
-    \item How many lines does that file have?
-          \expect{101.
-              But not 101 sequences: every sequence spans many lines}
-    \item In \texttt{exercises}, create \texttt{notes.txt} with \texttt{nano}, write a few lines, then print it with \texttt{cat}
-    \item Copy \texttt{notes.txt} to \texttt{backup.txt}, rename \texttt{backup.txt}
-          to \texttt{old.txt}, then delete \texttt{old.txt}
-          \expect{\texttt{ls} shows only \texttt{notes.txt} again}
-\end{enumerate}
+\begin{frame}{Exercises: working with files}
+\begin{exlist}{1_command_line.md}
+    \ex{1.5}{Look inside a file}{1}
+    \ex{1.6}{Count lines}{2}
+    \ex{1.7}{Write notes}{1}
+    \ex{1.8}{Copy, rename, delete}{2}
+\end{exlist}
 \end{frame}
 
 \begin{frame}{Some characters have a special meaning}
-\centering\footnotesize
-\begin{tabularx}{\textwidth}{@{}l>{\raggedright\arraybackslash}Xl@{}}
-    \toprule
-    \textbf{Char}                          & \textbf{Meaning}                                     & \textbf{Example}                                     \\
-    \midrule
-    \texttt{\textasciitilde}               & Your home directory                                  & \texttt{cd \textasciitilde}                          \\
-    \texttt{.}                             & The current directory                                & \texttt{cp \textasciitilde/notes.txt .}              \\
-    \texttt{..}                            & One directory up                                     & \texttt{cd ..}                                       \\
-    \texttt{/}                             & Between folders. At the start: the top of the system & \texttt{/home/student}                               \\
-    \texttt{*}                             & Any text (wildcard)                                  & \texttt{ls sample\_*}                                \\
-    \texttt{\textquotedbl...\textquotedbl} & Keep text together, as written                       & \texttt{mkdir \textquotedbl my results\textquotedbl} \\
-    \texttt{\$}                            & The value of a variable                              & \texttt{echo \textquotedbl\$HOME\textquotedbl}       \\
-    \texttt{>}                             & Write output to a file (overwrites it!)              & \texttt{wc -l <file> > lines.txt}                    \\
-    \texttt{\textbar}                      & Send output to the next command                      & \texttt{ls \textbar\ wc -l}                          \\
-    \bottomrule
-\end{tabularx}
-
-\vspace{0.3cm}
-\raggedright
-\begin{alertblock}{\texttt{>} overwrites without asking}
-    \texttt{head -n 3 a.fasta > a.fasta} leaves you with an \textbf{empty} \texttt{a.fasta}:
-    the shell empties the file before \texttt{head} even runs.
-    Always write to a new file.
-\end{alertblock}
-\end{frame}
-
-\begin{frame}[fragile]{screen keeps your work running when you disconnect}
 \small
-\begin{itemize}
-    \item Close your laptop or lose WiFi, and your SSH session ends, together with everything running in it
-    \item Programs started inside \texttt{screen} keep running on the server, reconnect later and continue where you left off
-    \item A session lives on one server: reattach on the same login node (\texttt{hpcs05} or \texttt{hpcs06})
-\end{itemize}
-\begin{lstlisting}
-screen -S assembly    # start a session called "assembly"
-Ctrl+A D              # detach, the session keeps running
-screen -ls            # list your sessions
-screen -r assembly    # reattach
-exit                  # close the session for good
-\end{lstlisting}
-    {\footnotesize \texttt{Ctrl+A D}: press \texttt{Ctrl+A}, release, then press \texttt{D}}
+\begin{cmdtablex}{lLl}
+    \textbf{Char} & \textbf{Meaning}                                     & \textbf{Example}               \\
+    \midrule
+    \cmd{~}       & Your home directory                                  & \cmd{cd ~}                     \\
+    \cmd{.}       & The current directory                                & \cmd{cp ~/notes.txt .}         \\
+    \cmd{..}      & One directory up                                     & \cmd{cd ..}                    \\
+    \cmd{/}       & Between directories, or the top                     & \cmd{/home/student}            \\
+    \cmd{*}       & Any text (wildcard)                                  & \cmd{ls sample_*}              \\
+    \cmd{"..."}   & Keep text with spaces together                       & \cmd{mkdir "my results"}       \\
+\end{cmdtablex}
 \end{frame}
 
 \begin{frame}[fragile]{Checksums tell you if your data arrived intact}
 \small
 \begin{itemize}
-    \item A checksum is a fingerprint of a file: change a single byte and the checksum is completely different
-    \item Transfers can silently corrupt or cut off files.
-          A broken
-          \texttt{.fastq.gz} can look fine until your analysis crashes or
-          gives wrong results
-    \item Sequencing companies and collaborators send checksums with the data.
-          Check them \textbf{before} you start, and before deleting the original
+    \item A checksum is a file's fingerprint: change one byte and it changes completely
+    \item Transfers can silently corrupt files: a broken \cmd{.fastq.gz} can look fine until your analysis fails
+    \item Data often comes with checksums: check them \textbf{before} you start, and before deleting originals
 \end{itemize}
 \begin{lstlisting}
 md5sum sample_R1.fastq.gz   # checksum of one file
 md5sum -c MD5.txt           # check against the list
-
-# output of md5sum -c:
+\end{lstlisting}
+\begin{lstlisting}[style=output]
 sample_R1.fastq.gz: OK
-sample_R2.fastq.gz: FAILED  # transfer this file again
+sample_R2.fastq.gz: FAILED  <- transfer this file again
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}{Try it: screen and checksums}
-\begin{enumerate}
-    \item Start a \texttt{screen} session called \texttt{test}, detach from it, list your sessions, reattach, and close it with \texttt{exit}
-          \expect{\texttt{screen -ls} shows your session while you are detached}
-    \item The sequencing company sent \texttt{MD5.txt} with the reads.
-          In \texttt{exercise\_data}, check all reads against it
-          \expect{one file \texttt{FAILED}: which one would you ask them to send again?}
-    \item Compute the checksum of that file yourself and compare it with its line in \texttt{MD5.txt}
-\end{enumerate}
+\begin{frame}{Exercises: checksums}
+\begin{exlist}{1_command_line.md}
+    \ex{1.9}{Check the reads}{1}
+    \ex{1.10}{Compare by hand}{2}
+\end{exlist}
 \end{frame}
 
-\begin{frame}[fragile]{More powerful commands: find}
+\begin{frame}[fragile]{More powerful commands: \cmd{find}}
 \begin{block}{Syntax}
-    \texttt{find <where> -name \textquotedbl<pattern>\textquotedbl}
+    \cmd{find <where> -name "<pattern>"}
 \end{block}
 \begin{lstlisting}
 find . -name "*.fasta"                 # here and below
 find sample_C -type f -name "*.fasta"  # only files
 \end{lstlisting}
-    {\footnotesize Quote the pattern, so the \texttt{*} goes to \texttt{find} instead of being filled in by the shell}
+\hint{Quote the pattern, so the \cmd{*} goes to \cmd{find} instead of being filled in by the shell}
 \end{frame}
 
-\begin{frame}[fragile]{More powerful commands: grep}
+\begin{frame}[fragile]{More powerful commands: \cmd{grep}}
 \begin{block}{Syntax}
-    \texttt{grep [options] \textquotedbl<pattern>\textquotedbl\ <file>}
+    \cmd{grep [options] "<pattern>" <file>}
 \end{block}
 \begin{lstlisting}
 grep "^>" sample_B/assembly.fasta       # header lines
@@ -269,48 +228,54 @@ grep -i "chromosome" sample_B/assembly.fasta
 \end{lstlisting}
 \small
 \begin{itemize}
-    \item \texttt{\textasciicircum} in a pattern means: the start of the line.
-          \texttt{-i} ignores upper/lower case
-    \item \alert{Always quote the \texttt{>}}: \mbox{\texttt{grep -c > assembly.fasta}} empties the file!
+    \item \cmd{^} in a pattern means: the start of the line.
+          \cmd{-i} ignores upper/lower case
+    \item \alert{Always quote the \cmd{>}}: \mbox{\cmd{grep -c > assembly.fasta}} empties the file!
 \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Pipes send the output of one command to the next}
-\texttt{<command> | <command>}: everything the left command prints goes into the right one
+\cmd{<command> | <command>}: everything the left command prints goes into the right one
 \begin{lstlisting}
 ls sample_B | wc -l          # count files
 
 # the first 3 headers
 grep "^>" sample_C/assembly.fasta | head -n 3
+
+# > writes the output to a file instead of the screen
+grep "^>" sample_C/assembly.fasta > headers.txt
 \end{lstlisting}
-\small You can chain as many commands as you like: \texttt{a | b | c}
+\small You can chain as many commands as you like: \cmd{a | b | c}
+
+\medskip
+\begin{alertblock}{\cmd{>} overwrites without asking}
+    \cmd{head -n 3 a.fasta > a.fasta} leaves you with an \textbf{empty} \cmd{a.fasta}:
+    the shell empties the file before \cmd{head} even runs.
+    Always write to a new file.
+\end{alertblock}
 \end{frame}
 
-\begin{frame}{Try it: find and grep}
-\begin{enumerate}
-    \item List all \texttt{.fasta} files in \texttt{exercise\_data}
-          \expect{4 files, one of them in \texttt{sample\_C/old}}
-    \item How many sequences are in \texttt{sample\_A/assembly.fasta}?
-          \expect{hint: every sequence header starts with \texttt{>}}
-    \item Which sequence headers contain the word ``plasmid''? Upper and lower case should both match
-          \expect{6 headers, from 3 files}
-    \item Count all \texttt{.fastq.gz} files: combine \texttt{find} with a pipe
-          \expect{6}
-\end{enumerate}
+\begin{frame}{Exercises: find and grep}
+\begin{exlist}{1_command_line.md}
+    \ex{1.11}{Find files}{1}
+    \ex{1.12}{Count sequences}{2}
+    \ex{1.13}{Count files with a pipe}{2}
+    \ex{1.14}{Plasmid headers}{3}
+\end{exlist}
 \end{frame}
 
-\begin{frame}[fragile]{More powerful commands: for loop}
+\begin{frame}[fragile]{More powerful commands: \cmd{for} loop}
 \begin{block}{Syntax}
-    \texttt{for <var> in <list>; do <command> \textquotedbl\$<var>\textquotedbl; done}
+    \cmd{for <var> in <list>; do <command> "$<var>"; done}
 \end{block}
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+\begin{lstlisting}
 for f in sample_B/*.fastq.gz; do
     md5sum "$f"
 done
 \end{lstlisting}
 \pause
 \small This runs the command once for every file:
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+\begin{lstlisting}
 # round 1: $f is sample_B/sample_B_R1.fastq.gz
 md5sum "sample_B/sample_B_R1.fastq.gz"
 # round 2: $f is sample_B/sample_B_R2.fastq.gz
@@ -318,15 +283,15 @@ md5sum "sample_B/sample_B_R2.fastq.gz"
 \end{lstlisting}
 \pause
 \begin{itemize}
-    \item \texttt{f} is a variable: every round it holds the next file name
-    \item \texttt{\$f} gives its value.
-          Quote it, \texttt{\textquotedbl\$f\textquotedbl}, so names with spaces do not break
+    \item \cmd{f} is a variable: every round it holds the next file name
+    \item \cmd{$f} gives its value.
+          Quote it, \cmd{"$f"}, so names with spaces do not break
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Test a loop with echo before you run it}
-Put \texttt{echo} in front: the loop prints the commands instead of running them
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+\begin{frame}[fragile]{Test a loop with \cmd{echo} before you run it}
+Put \cmd{echo} in front: the loop prints the commands instead of running them
+\begin{lstlisting}
 for f in sample_*/*.fastq.gz; do echo md5sum "$f"; done
 \end{lstlisting}
 \pause
@@ -340,27 +305,39 @@ md5sum sample_C/sample_C_R2.fastq.gz
 \end{lstlisting}
 \pause
 Looks right?
-Remove the \texttt{echo} to run it for real:
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+Remove the \cmd{echo} to run it for real:
+\begin{lstlisting}
 for f in sample_*/*.fastq.gz; do md5sum "$f"; done
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}{Try it: loops and scripts}
-\begin{enumerate}
-    \item Write a \texttt{for} loop that prints the name and the number of sequences of every \texttt{assembly.fasta}.
-          Test it with \texttt{echo} first
-          \expect{3 file names, each followed by a number}
-    \item In \texttt{exercise\_data}, put your loop in a script \texttt{count.sh}: start the file with the line \texttt{\#!/bin/bash}
-    \item Make it executable with \texttt{chmod} and run it with \texttt{./count.sh}
-          \expect{the same output as your loop}
-\end{enumerate}
+\begin{frame}[fragile]{Scripts: save your commands in a file}
+A script is commands saved in a file, so you can run them again
+\begin{lstlisting}
+#!/bin/bash
+# check.sh: check all reads against MD5.txt
+md5sum -c MD5.txt
+\end{lstlisting}
+\begin{lstlisting}
+chmod +x check.sh   # make it executable (once)
+./check.sh          # run it: ./ means "the file here"
+\end{lstlisting}
+\begin{itemize}
+    \item The first line, \texttt{\#!/bin/bash}, says: run this file with bash
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Exercises: scripts and loops}
+\begin{exlist}{1_command_line.md}
+    \ex{1.15}{Your first script}{2}
+    \ex{1.16}{A for loop}{3}
+    \ex{1.17}{A loop in a script}{3}
+\end{exlist}
 \end{frame}
 
 \begin{frame}[fragile]{SSH lets you work securely on another computer}
 \begin{itemize}
-    \item Secure Shell Protocol (SSH) is a cryptographic network protocol for operating network services securely over an unsecured network
-    \item Its most notable applications are remote login and command-line execution
+    \item SSH gives you a terminal on another computer, over an encrypted connection
     \item We use it to log in to the HPC, and Git uses it to talk to GitHub
 \end{itemize}
 \begin{lstlisting}
@@ -370,24 +347,15 @@ exit                    # log out again
 \end{frame}
 
 \begin{frame}{SSH keys: a private key and a public key}
-\centering
-\begin{tikzpicture}[
-        box/.style={draw, rounded corners, fill=backcolour, minimum width=3.4cm,
-                minimum height=1.2cm, align=center, font=\small},
-        arr/.style={-Stealth, thick}
-    ]
-    \node[box] (me)  at (0,0)   {Your computer\\{\footnotesize private key \texttt{id\_ed25519}}};
-    \node[box] (srv) at (6.6,0) {GitHub, a server, \ldots\\{\footnotesize public key \texttt{id\_ed25519.pub}}};
-    \draw[arr] (me) -- node[above, font=\footnotesize, align=center] {copy the\\\texttt{.pub} file} (srv);
-\end{tikzpicture}
+\diagram{ssh-keys}
 
-\vspace{0.4cm}
-\raggedright\small
+\bigskip
+\small
 \begin{itemize}
-    \item \texttt{ssh-keygen} creates a key pair: two files in \texttt{\textasciitilde/.ssh}
+    \item \cmd{ssh-keygen} creates a key pair: two files in \cmd{~/.ssh}
     \item The \textbf{public} key is like a lock: give it to the servers you want to use
-    \item The \textbf{private} key is the only key that opens it: keep it on your computer, protect it with a passphrase and \textbf{never share it}
+    \item The \textbf{private} key opens it: keep it on your computer, protect it with a passphrase, \textbf{never share it}
     \item No more passwords: the server checks you have the matching private key
-    \item The HPC asks for its own, separate key pair: more on that later
+    \item On the HPC you can log in through Open OnDemand, without a key
 \end{itemize}
 \end{frame}

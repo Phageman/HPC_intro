@@ -1,13 +1,14 @@
 %% ====================================================================
-%% CLI, HPC workshop
+%% Command line and HPC workshop
 %% Build:  latexmk   (settings in latexmkrc)
 %% Format: latexindent -l -s -w -c=/tmp main.tex sections/*.tex
-%% Check: chktex -q -n1 -n8 -n11 -n18 -n26 -n36 main.tex sections/*.tex
-%%        (the switches hide false positives from commands like cd .. or "...")
+%% Check:  chktex -l chktexrc main.tex sections/*.tex
 %% Slides live in sections/, one file per section.
+%% Diagrams: images/diagrams/*.drawio, edit them in drawio;
+%%           latexmk exports them to PDF (see latexmkrc).
 %% ====================================================================
 
-\documentclass{beamer}
+\documentclass[t]{beamer}
 \usetheme{Frankfurt}
 \usecolortheme{whale}
 
@@ -21,11 +22,10 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
-\usepackage{appendixnumberbeamer}
 \usepackage{listings}
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta, decorations.pathreplacing}
-\usepackage{dirtree}
+% Keep -- as two dashes in typewriter text (--help, --mem, ...)
+\usepackage{microtype}
+\DisableLigatures[-]{encoding=T1,family=tt*}
 
 \graphicspath{{images/}}
 
@@ -39,7 +39,7 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 % Code blocks: bash highlighting by default.
-% Smaller blocks: [basicstyle=\ttfamily\footnotesize] or \scriptsize.
+% Smaller blocks: [style=footnotesize] or [style=scriptsize] (defined below).
 % Keep \end{lstlisting} at the start of the line:
 % spaces before it become part of the code block.
 \lstset{
@@ -52,6 +52,7 @@
     backgroundcolor=\color{backcolour},
     columns=fullflexible,
     keepspaces=true,
+    upquote=true,         % straight ' and `, as in a terminal
     breaklines=true,
     showstringspaces=false,
     tabsize=2
@@ -67,14 +68,57 @@
     basicstyle=\ttfamily\footnotesize\color{darkgray}
 }
 
+% Smaller code blocks
+\lstdefinestyle{footnotesize}{basicstyle=\ttfamily\footnotesize}
+\lstdefinestyle{scriptsize}{basicstyle=\ttfamily\scriptsize}
+% Smaller output blocks
+\lstdefinestyle{output-scriptsize}{style=output, basicstyle=\ttfamily\scriptsize\color{darkgray}}
+\lstdefinestyle{output-tiny}{style=output, basicstyle=\ttfamily\tiny\color{darkgray}}
+
 %% ====================================================================
 %% Helper commands
 %% ====================================================================
 
-% Marks slides where only people with HPC access can type along
-\newcommand{\hpcbadge}{\hfill\colorbox{codegray!25}{\footnotesize Have HPC access? Type along}\par}
-% Expected result under a task on a "Try it" slide
-\newcommand{\expect}[1]{\newline{\footnotesize\color{codegray}$\rightarrow$ #1}}
+% Exercise level: \level{1} basic, \level{2} intermediate, \level{3} advanced
+\newcommand{\level}[1]{{\usebeamercolor[fg]{structure}\makebox[2.4em][l]{%
+    \ifcase#1\or$\bullet$\or$\bullet\bullet$\or$\bullet\bullet\bullet$\fi}}%
+    \ifcase#1\or basic\or intermediate\or advanced\fi}
+% Exercise slide: \begin{exlist}{1_command_line.md} \ex{1.1}{Where am I?}{1} \end{exlist}
+\newenvironment{exlist}[1]
+    {\par\cmd{exercises/#1}\par\medskip\begin{tabular}{@{}l@{\hspace{1em}}l@{\hspace{2em}}l@{}}}
+    {\end{tabular}\par}
+\newcommand{\ex}[3]{#1 & #2 & \level{#3} \\}
+% Centred diagram from images/diagrams/<name>.pdf (made from <name>.drawio)
+\newcommand{\diagram}[1]{{\centering\includegraphics{images/diagrams/#1.pdf}\par}}
+% Small note under a code block
+\newcommand{\hint}[1]{{\footnotesize #1}}
+
+% Inline command, path or file name, typed as-is: \cmd{cd ~/HPC_intro | wc -l}
+% No escaping needed for ~ _ " | $ ^ < > --.
+% Not allowed inside: % and #  (use \texttt{\#...}), unbalanced { }.
+\DeclareRobustCommand{\cmd}[1]{\texttt{\detokenize{#1}}}
+
+%% ====================================================================
+%% Tables
+%% ====================================================================
+
+% L: a column that fills the remaining width, left-aligned (for tabularx)
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+
+% Centred booktabs table at natural width. Set the font size before it.
+%   \begin{cmdtable}{ll}
+%       \textbf{Command} & \textbf{What it does} \\ \midrule
+%       \cmd{pwd}        & Print where you are   \\
+%   \end{cmdtable}
+\newenvironment{cmdtable}[1]
+    {\par\centering\begin{tabular}{@{}#1@{}}\toprule}
+    {\bottomrule\end{tabular}\par}
+
+% Same, but full width: needs an L (or X) column
+%   \begin{cmdtablex}{lLl} ... \end{cmdtablex}
+\newenvironment{cmdtablex}[1]
+    {\par\centering\tabularx{\linewidth}{@{}#1@{}}\toprule}
+    {\bottomrule\endtabularx\par}
 
 %% ====================================================================
 %% Theme adjustments
@@ -84,8 +128,9 @@
 \setbeamertemplate{navigation symbols}{}
 % Show slide numbers
 \setbeamertemplate{footline}[frame number]
-% Slightly smaller section names so all sections fit in the header
-\setbeamerfont{section in head/foot}{size=\fontsize{4.6}{5}\selectfont}
+% Darker greyed-out sections on the "Next section" slides
+\setbeamertemplate{section in toc shaded}[default][60]
+% Short section names for the header: \section[Short]{Full name}
 % Show the table of contents at the start of every section
 \AtBeginSection[]{
     \begin{frame}{Next section}
@@ -97,9 +142,8 @@
 %% Metadata
 %% ====================================================================
 
-\title{CLI, HPC workshop}
-\subtitle{}
-\date{24-11-2026}
+\title{Command line and HPC workshop}
+\date{24 November 2026}
 \author{Doğukan Bayraktar}
 
 %% ====================================================================
@@ -108,16 +152,16 @@
 
 \begin{document}
 
-\begin{frame}
+\begin{frame}[c]
 \titlepage
-\includegraphics[height=.1\textheight]{logo/umcu.png}
-\includegraphics[height=.1\textheight]{logo/mmbbioit.png}
+{\centering
+    \includegraphics[height=.12\textheight]{logo/umcu.png}\hspace{2em}%
+    \includegraphics[height=.12\textheight]{logo/mmbbioit.png}\par}
 \end{frame}
 
 \input{sections/cli}
 \input{sections/git}
 \input{sections/packages}
 \input{sections/hpc}
-\input{sections/appendix}
 
 \end{document}

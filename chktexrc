@@ -1,0 +1,11 @@
+# Settings for chktex. Check all files:
+#   chktex -l chktexrc main.tex sections/*.tex
+# Do not check the argument of \cmd{...}: it is typed as-is,
+# so $ _ ^ inside it are not math
+WipeArg { \cmd:{} }
+
+# Always quiet, and hide warnings that are false positives here:
+# 1 command terminated with space, 8 wrong dash length, 11 use \ldots,
+# 18 use `` or '', 26 space before punctuation, 36 space around brackets
+# (they come from shell commands such as cd .. or "...")
+CmdLine { -q -n1 -n8 -n11 -n18 -n26 -n36 }
