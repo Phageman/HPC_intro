@@ -19,7 +19,8 @@ Skipping an advanced exercise never blocks a later one.
 
 ## Before you start
 
-Open a terminal: on a Mac or Linux laptop the Terminal app, on the HPC a terminal in
+Open a terminal: on a Mac or Linux laptop the Terminal app, on Windows Ubuntu in WSL
+(install it before the workshop), on the HPC a terminal in
 Open OnDemand (<https://hpcs05.op.umcutrecht.nl>). Then get the workshop files:
 
 ```bash

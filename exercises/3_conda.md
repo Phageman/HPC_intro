@@ -50,7 +50,10 @@ Deactivate the environment, and list all your environments.
 Export your environment to a file, then commit and push it to your fork.
 
 ```bash
-conda env export -n qc --no-builds > environment.yml
+conda env export -n qc --from-history > environment.yml
 ```
+
+`--from-history` saves only the packages you asked for, so the file also works on other
+systems (Mac, Linux). Without it, every exact package build for your system is listed.
 
 *Expected:* `environment.yml` is in your fork on GitHub

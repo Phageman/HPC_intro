@@ -11,32 +11,58 @@
         \item It saves snapshots (\emph{commits}) of your files
         \item Go back to any earlier version
         \item See who changed what, when and why
-        \item Work together on the same code without overwriting each other
+        \item Work together on the same code without overwriting each other's work
     \end{itemize}
     \column{0.35\textwidth}
     \begin{center}
         \includegraphics[height=1.2cm]{logo/github.png} \hspace{0.3cm}
-        \includegraphics[height=1.2cm]{logo/gitlab.png}
+        \includegraphics[height=1.4cm]{logo/gitlab.png}
     \end{center}
     \centering\footnotesize
     GitHub and GitLab host Git repositories online
 \end{columns}
 \end{frame}
 
-\begin{frame}{Git basics}
+\begin{frame}{Git basics: saving snapshots}
 \small
 \renewcommand{\arraystretch}{1.25}
 \begin{cmdtablex}{lL}
-    \textbf{Term} & \textbf{What it means}                                                          \\
+    \textbf{Term} & \textbf{What it means}                                              \\
     \midrule
-    Repository    & A project directory whose history is tracked by Git                                \\
-    Clone         & Download a copy of a repository to your computer or the HPC                     \\
-    Stage         & Pick the changes for your next commit (\cmd{git add})                           \\
-    Commit        & Save a snapshot of your changes, with a message describing them                 \\
-    Push          & Upload your commits to the online repository                                    \\
-    Pull          & Download the latest commits from the online repository                          \\
-    Remote        & The online repository your clone pushes to and pulls from, called \cmd{origin}   \\
-    Fork          & Your own online copy of someone else's repository, which you are free to change \\
+    Repository    & A project directory whose history is tracked by Git                 \\
+    Clone         & Download a copy of a repository to your computer or the HPC         \\
+    Stage         & Pick the changes for your next commit (\cmd{git add})               \\
+    Commit        & Save a snapshot of your staged changes, with a message describing them \\
+\end{cmdtablex}
+
+\bigskip
+\begin{center}
+\begin{tikzpicture}[
+        box/.style={draw, rounded corners, align=center, font=\footnotesize,
+                text width=1.8cm, minimum height=1cm, fill=structure.fg!8},
+        arr/.style={-{Stealth}, thick},
+        lab/.style={font=\scriptsize\ttfamily, above=3pt}
+    ]
+    \node[box] (work) {Working\\directory};
+    \node[box, right=1.9cm of work] (stage) {Staging\\area};
+    \node[box, right=1.9cm of stage] (repo) {Repository\\(history)};
+    \draw[arr] (work) -- node[lab] {git add} (stage);
+    \draw[arr] (stage) -- node[lab] {git commit} (repo);
+\end{tikzpicture}
+\end{center}
+\hint{\cmd{git status} shows which changes are in which box}
+\end{frame}
+
+\begin{frame}{Git basics: working with GitHub}
+\small
+\renewcommand{\arraystretch}{1.25}
+\begin{cmdtablex}{lL}
+    \textbf{Term} & \textbf{What it means}                                                                \\
+    \midrule
+    Remote        & The online repository your clone pushes to and pulls from, by default called \cmd{origin} \\
+    Push          & Upload your commits to the remote                                                     \\
+    Pull          & Download the latest commits from the remote                                           \\
+    Fork          & Your own online copy of someone else's repository, which you are free to change       \\
 \end{cmdtablex}
 \end{frame}
 
@@ -49,6 +75,7 @@ Skip the fork and clone it directly.
 \end{frame}
 
 \begin{frame}[fragile]{The basic Git workflow}
+Every working day: pull, edit, add, commit, push
 \begin{lstlisting}
 git clone git@github.com:<user>/<repo>.git
 cd <repo>
@@ -60,31 +87,32 @@ git add <file>          # stage changes for the commit
 git commit -m "Describe what you changed"
 git push                # upload your commits
 \end{lstlisting}
+\hint{Cloning with \cmd{git@github.com:} needs your SSH key (exercise 2.4).
+    Without it, use the \cmd{https://} URL}
 \end{frame}
 
-\begin{frame}{Exercises: your own copy}
+\begin{frame}[fragile]{Useful Git commands for the exercises}
+\small
+\begin{cmdtablex}{lL}
+    \textbf{Command}                          & \textbf{What it does}                       \\
+    \midrule
+    \cmd{git config --global user.name}       & Tell Git who you are (once per computer)    \\
+    \cmd{git diff}                            & Show changes you have not staged yet        \\
+    \cmd{git log --oneline}                   & List earlier commits                        \\
+    \cmd{git restore <file>}                  & Undo unstaged changes to a file             \\
+    \cmd{git remote -v}                       & Show where your clone pushes and pulls      \\
+    \cmd{git remote set-url origin <url>}     & Point your clone at another remote          \\
+\end{cmdtablex}
+\end{frame}
+
+\begin{frame}{Exercises: Git}
 \begin{exlist}{2_git.md}
     \ex{2.1}{Fork the repository}{1}
     \ex{2.2}{Where does your clone come from?}{1}
-\end{exlist}
-\end{frame}
-
-\begin{frame}{Exercises: SSH key for GitHub}
-\begin{exlist}{2_git.md}
     \ex{2.3}{Tell Git who you are}{1}
     \ex{2.4}{Set up your SSH key}{2}
-\end{exlist}
-\end{frame}
-
-\begin{frame}{Exercises: your first commit}
-\begin{exlist}{2_git.md}
     \ex{2.5}{Your first commit}{2}
     \ex{2.6}{Undo a change}{3}
-\end{exlist}
-\end{frame}
-
-\begin{frame}{Exercises: push to your fork}
-\begin{exlist}{2_git.md}
     \ex{2.7}{Push to your fork}{2}
 \end{exlist}
 \end{frame}

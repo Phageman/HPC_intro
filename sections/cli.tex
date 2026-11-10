@@ -2,12 +2,29 @@
 %% Command line basics
 %% ====================================================================
 
+\begin{frame}{Why learn the command line?}
+Your sequencing run is back:
+\begin{itemize}
+    \item 200 FASTQ files, 500 GB in total
+    \item A laptop with 8 GB of memory and a nearly full disk
+    \item An assembler with no buttons: only a command line
+\end{itemize}
+\bigskip
+\textbf{Today you will learn to}
+\begin{itemize}
+    \item Find, check and process files from the command line
+    \item Keep your scripts safe with Git
+    \item Install tools yourself with Conda
+    \item Run your analysis on the HPC with Slurm
+\end{itemize}
+\end{frame}
+
 \section[CLI]{Command-line basics}
 \begin{frame}{Before we start: open a terminal}
 \begin{cmdtable}{ll}
     \textbf{Computer} & \textbf{How to open a terminal}                \\ \midrule
     Mac               & \cmd{Cmd+Space}, type \cmd{Terminal}, \cmd{Enter} \\
-    Windows           & Start menu: \textbf{Git Bash} (or WSL)         \\
+    Windows           & Start menu: \textbf{Ubuntu} (WSL)              \\
     Linux             & \cmd{Ctrl+Alt+T}                               \\
     HPC               & A terminal in Open OnDemand (browser)          \\
 \end{cmdtable}
@@ -15,7 +32,8 @@
 You type commands in the terminal and press \cmd{Enter} to run them
 
 \medskip
-\hint{Open OnDemand: \cmd{https://hpcs05.op.umcutrecht.nl}, more about it in the HPC section}
+\hint{Open OnDemand: \link{https://hpcs05.op.umcutrecht.nl}.
+    Windows: install WSL before the workshop}
 \end{frame}
 
 \begin{frame}[fragile]{Before we start: get the data for today}
@@ -27,7 +45,7 @@ git clone https://github.com/bayraktar1/HPC_intro.git
 cd HPC_intro/exercise_data
 \end{lstlisting}
 \begin{itemize}
-    \item Never work in your home directory on the HPC
+    \item On the HPC, keep data and environments out of your home directory (7 GB)
     \item \cmd{git} not found? Raise your hand
 \end{itemize}
 \end{frame}
@@ -35,22 +53,19 @@ cd HPC_intro/exercise_data
 \begin{frame}{How the exercises work}
 \begin{itemize}
     \item The exercises are in \cmd{HPC_intro/exercises}, one file per section.
-          Easiest to read on GitHub: \cmd{github.com/bayraktar1/HPC_intro}
+          Easiest to read on GitHub: \href{https://github.com/bayraktar1/HPC_intro}{\cmd{github.com/bayraktar1/HPC_intro}}
     \item When a slide says \textbf{Exercises}, do the numbers it lists
     \item Every exercise has a level:
 \end{itemize}
 \medskip
-\begin{tabular}{@{}l@{\hspace{2em}}l@{}}
-    \level{1} & everyone does these          \\
-    \level{2} & do these if you can          \\
-    \level{3} & optional, when you are early \\
+\hspace*{\leftmargini}\begin{tabular}{@{}l@{\hspace{2em}}l@{}}
+    \level{1} & everyone does these           \\
+    \level{2} & do these if you can           \\
+    \level{3} & optional, if you finish early \\
 \end{tabular}
-\medskip
-\begin{itemize}
-    \item Stuck? Ask, or look in \cmd{exercises/solutions}
-\end{itemize}
 \end{frame}
 
+\subsection{Files and paths}
 \begin{frame}{Every command has the same anatomy}
 \diagram{command-anatomy}
 
@@ -139,30 +154,46 @@ cd ~/HPC_intro/exercise_data
 \end{cmdtable}
 
 \bigskip
-Use \cmd{Tab} all the time: it is faster and prevents typos in file names.
+Use \cmd{Tab} all the time: it is faster and prevents typos in file names
 \end{frame}
 
-\begin{frame}{Working with files}
+\begin{frame}{Looking at files}
 \small
 \begin{cmdtable}{ll}
-    \textbf{Command}         & \textbf{What it does}                                   \\
+    \textbf{Command}         & \textbf{What it does}                 \\
     \midrule
-    \cmd{cat <file>}         & Print a whole file                                      \\
-    \cmd{head -n <N> <file>} & Print the first \cmd{N} lines                           \\
-    \cmd{less <file>}        & Scroll through a file (\cmd{q} quits)                   \\
-    \cmd{wc -l <file>}       & Count the lines                                         \\
-    \cmd{cp <file> <copy>}   & Copy a file                                             \\
-    \cmd{mv <file> <new>}    & Move or rename a file                                   \\
-    \cmd{rm <file>}          & Delete a file: \alert{no undo, no trash!}               \\
-    \cmd{rmdir <dir>}        & Remove an empty directory                               \\
-    \cmd{nano <file>}        & Edit a file (\cmd{Ctrl+O}, \cmd{Enter}: save; \cmd{Ctrl+X}: quit) \\
+    \cmd{cat <file>}         & Print a whole file                    \\
+    \cmd{head -n <N> <file>} & Print the first \cmd{N} lines         \\
+    \cmd{less <file>}        & Scroll through a file (\cmd{q} quits) \\
+    \cmd{wc -l <file>}       & Count the lines                       \\
 \end{cmdtable}
+
+\bigskip
+These only read: they never change your file
 \end{frame}
 
-\begin{frame}{Exercises: working with files}
+\begin{frame}{Exercises: looking at files}
 \begin{exlist}{1_command_line.md}
     \ex{1.5}{Look inside a file}{1}
     \ex{1.6}{Count lines}{2}
+\end{exlist}
+\end{frame}
+
+\begin{frame}{Changing files}
+\small
+\begin{cmdtable}{ll}
+    \textbf{Command}       & \textbf{What it does}                                             \\
+    \midrule
+    \cmd{nano <file>}      & Edit a file (\cmd{Ctrl+O}, \cmd{Enter}: save; \cmd{Ctrl+X}: quit) \\
+    \cmd{cp <file> <copy>} & Copy a file                                                       \\
+    \cmd{mv <file> <new>}  & Move or rename a file                                             \\
+    \cmd{rm <file>}        & Delete a file: \alert{no undo, no trash!}                         \\
+    \cmd{rmdir <dir>}      & Remove an empty directory                                         \\
+\end{cmdtable}
+\end{frame}
+
+\begin{frame}{Exercises: changing files}
+\begin{exlist}{1_command_line.md}
     \ex{1.7}{Write notes}{1}
     \ex{1.8}{Copy, rename, delete}{2}
 \end{exlist}
@@ -190,13 +221,16 @@ Use \cmd{Tab} all the time: it is faster and prevents typos in file names.
     \item Data often comes with checksums: check them \textbf{before} you start, and before deleting originals
 \end{itemize}
 \begin{lstlisting}
-md5sum sample_R1.fastq.gz   # checksum of one file
-md5sum -c MD5.txt           # check against the list
+md5sum sample_A/sample_A_R1.fastq.gz   # one file
+md5sum -c MD5.txt                      # check the list
 \end{lstlisting}
 \begin{lstlisting}[style=output]
-sample_R1.fastq.gz: OK
-sample_R2.fastq.gz: FAILED  <- transfer this file again
+sample_A/sample_A_R1.fastq.gz: OK
+sample_A/sample_A_R2.fastq.gz: OK
+...
+md5sum: WARNING: 1 computed checksum did NOT match
 \end{lstlisting}
+\hint{A file marked \cmd{FAILED}: transfer it again}
 \end{frame}
 
 \begin{frame}{Exercises: checksums}
@@ -206,6 +240,7 @@ sample_R2.fastq.gz: FAILED  <- transfer this file again
 \end{exlist}
 \end{frame}
 
+\subsection{Searching and automating}
 \begin{frame}[fragile]{More powerful commands: \cmd{find}}
 \begin{block}{Syntax}
     \cmd{find <where> -name "<pattern>"}
@@ -245,7 +280,7 @@ grep "^>" sample_C/assembly.fasta | head -n 3
 # > writes the output to a file instead of the screen
 grep "^>" sample_C/assembly.fasta > headers.txt
 \end{lstlisting}
-\small You can chain as many commands as you like: \cmd{a | b | c}
+{\small You can chain as many commands as you like: \cmd{a | b | c}\par}
 
 \medskip
 \begin{alertblock}{\cmd{>} overwrites without asking}
@@ -274,7 +309,7 @@ for f in sample_B/*.fastq.gz; do
 done
 \end{lstlisting}
 \pause
-\small This runs the command once for every file:
+{\small This runs the command once for every file:\par}
 \begin{lstlisting}
 # round 1: $f is sample_B/sample_B_R1.fastq.gz
 md5sum "sample_B/sample_B_R1.fastq.gz"
@@ -335,6 +370,7 @@ chmod +x check.sh   # make it executable (once)
 \end{exlist}
 \end{frame}
 
+\subsection{Remote access}
 \begin{frame}[fragile]{SSH lets you work securely on another computer}
 \begin{itemize}
     \item SSH gives you a terminal on another computer, over an encrypted connection

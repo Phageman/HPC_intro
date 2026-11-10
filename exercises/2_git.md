@@ -38,7 +38,7 @@ git config --global user.email "<your email>"
 
 ### 2.4 Set up your SSH key ●●
 
-Already have a key? If `ls ~/.ssh` shows a `.pub` file (not the `_hpc` one), use it and skip step 1.
+Already have a key? If `ls ~/.ssh` shows a `.pub` file, use it and skip step 1.
 
 1. Create a key pair: press `Enter` for the default location, then choose a passphrase
 2. Print your public key and copy it

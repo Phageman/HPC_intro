@@ -26,6 +26,9 @@
 % Keep -- as two dashes in typewriter text (--help, --mem, ...)
 \usepackage{microtype}
 \DisableLigatures[-]{encoding=T1,family=tt*}
+% Small diagrams drawn in the slides (Slurm queue, Git staging)
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
 
 \graphicspath{{images/}}
 
@@ -73,7 +76,6 @@
 \lstdefinestyle{scriptsize}{basicstyle=\ttfamily\scriptsize}
 % Smaller output blocks
 \lstdefinestyle{output-scriptsize}{style=output, basicstyle=\ttfamily\scriptsize\color{darkgray}}
-\lstdefinestyle{output-tiny}{style=output, basicstyle=\ttfamily\tiny\color{darkgray}}
 
 %% ====================================================================
 %% Helper commands
@@ -92,6 +94,8 @@
 \newcommand{\diagram}[1]{{\centering\includegraphics{images/diagrams/#1.pdf}\par}}
 % Small note under a code block
 \newcommand{\hint}[1]{{\footnotesize #1}}
+% Clickable link, shown like \cmd: \link{https://example.org}
+\newcommand{\link}[1]{\href{#1}{\texttt{#1}}}
 
 % Inline command, path or file name, typed as-is: \cmd{cd ~/HPC_intro | wc -l}
 % No escaping needed for ~ _ " | $ ^ < > --.
@@ -135,6 +139,13 @@
 \AtBeginSection[]{
     \begin{frame}{Next section}
         \tableofcontents[currentsection, hideallsubsections]
+    \end{frame}
+}
+% Divider at the start of every subsection (used in long sections)
+\AtBeginSubsection[]{
+    \begin{frame}{Next up}
+        \tableofcontents[currentsection, currentsubsection,
+            subsectionstyle=show/shaded/hide, sectionstyle=show/hide]
     \end{frame}
 }
 

@@ -27,21 +27,8 @@
 
 \begin{frame}{Who makes use of the HPC?}
 \begin{itemize}
-    \item University Medical Center Utrecht
-          \begin{itemize}
-              \item Division Biomedical
-              \item Division Cardiology \& Pulmonology
-              \item Division Imaging
-              \item Division Internal Medicine
-              \item Julius Center
-              \item Division Laboratories \& Pharmacy
-              \item Division Neuroscience
-          \end{itemize}
-    \item Utrecht University
-          \begin{itemize}
-              \item Science Faculty, Department of Information and Computing Sciences
-              \item Science Faculty, Department of Biology
-          \end{itemize}
+    \item UMC Utrecht: 7 divisions, including the Julius Center
+    \item Utrecht University: Biology, and Information and Computing Sciences
     \item Hubrecht Institute
     \item Princess Máxima Center for Pediatric Oncology
 \end{itemize}
@@ -53,8 +40,8 @@
                & \textbf{My UMC laptop} & \textbf{One HPC node} & \textbf{The cluster} \\
     \midrule
     CPU cores  & 8 (Apple M3)           & 24--48                & 2172 in 57 nodes     \\
-    Memory     & 8 GB                   & 256 GB -- 1 TB        &                      \\
-    Local disk & 560 GB SSD             & 1--2 TB tmpspace      & + shared storage     \\
+    Memory     & 8 GB                   & 256 GB -- 1 TB        & --                   \\
+    Local disk & 512 GB SSD             & 1--2 TB tmpspace      & + shared storage     \\
 \end{cmdtable}
 
 \bigskip
@@ -68,7 +55,7 @@
 
 \begin{frame}{Login, compute and transfer nodes}
 \begin{columns}[c]
-    \column{0.42\textwidth}
+    \column{0.5\textwidth}
     \small
     \begin{itemize}
         \item \textbf{Login nodes} (\cmd{hpcs05}, \cmd{hpcs06}): log in, edit scripts, submit jobs.
@@ -78,12 +65,13 @@
         \item \textbf{Transfer nodes} (\cmd{hpct04}, \cmd{hpct05}): move data to and from the HPC
         \item \textbf{Shared storage}: every node sees the same files
     \end{itemize}
-    \column{0.56\textwidth}
+    \column{0.48\textwidth}
     \includegraphics[width=\linewidth]{cluster_draw.png}
 \end{columns}
 \end{frame}
 
 \begin{frame}{Slurm decides who runs what, and where}
+\small
 \begin{itemize}
     \item The HPC is shared: hundreds of users, one set of nodes
     \item You ask Slurm for resources: cores, memory, time, disk space
@@ -91,6 +79,22 @@
     \item Fair share: if your group used little recently, your jobs start sooner
     \item Small, short requests find a free spot faster
 \end{itemize}
+\bigskip
+\begin{center}
+\begin{tikzpicture}[
+        box/.style={draw, rounded corners, align=center, font=\footnotesize,
+                text width=1.9cm, minimum height=1.1cm, fill=structure.fg!8},
+        arr/.style={-{Stealth}, thick}
+    ]
+    \node[box] (you) {You submit\\a job};
+    \node[box, right=0.7cm of you] (queue) {It waits in\\the queue\\(\cmd{PD})};
+    \node[box, right=0.7cm of queue] (slurm) {Slurm finds\\a free node};
+    \node[box, right=0.7cm of slurm] (node) {The node\\runs it\\(\cmd{R})};
+    \draw[arr] (you) -- (queue);
+    \draw[arr] (queue) -- (slurm);
+    \draw[arr] (slurm) -- (node);
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
 \begin{frame}{Where to keep your files on the HPC}
@@ -98,16 +102,16 @@
 \begin{cmdtablex}{lllL}
     \textbf{Where} & \textbf{Path}              & \textbf{Size} & \textbf{Use it for}                         \\
     \midrule
-    Home           & \cmd{/home/<group>/<user>} & 7 GB          & Scripts, settings                           \\
-    Project        & \cmd{/hpc/<group>/<user>}  & Group's       & Data, results, Conda envs                   \\
-    tmpspace       & \cmd{/scratch/<jobid>}     & Requested     & Fast disk during a job, on the compute node \\
+    Home           & \cmd{/home/<group>/<user>} & 7 GB          & Scripts, settings   \\
+    Project        & \cmd{/hpc/<group>/<user>}  & Group quota   & Data and envs       \\
+    tmpspace       & \cmd{/scratch/<jobid>}     & Requested     & Fast job-local disk \\
 \end{cmdtablex}
 
 \medskip
 \small
 \begin{itemize}
     \item Your home directory is small: keep big data in the project directory
-    \item Project quota (several TB) is shared by your group: use at most 1 TB yourself
+    \item Project quota (several TB) is shared by your group
     \item tmpspace is deleted when the job ends: copy your results back
     \item \alert{There are no backups}: keep a copy of your raw data elsewhere, and your scripts in Git
 \end{itemize}
@@ -116,53 +120,36 @@
 \section[Connecting]{Connecting to the HPC}
 \begin{frame}{Using Open OnDemand}
 \small
-\hint{From here on: type along if you have HPC access, otherwise follow on the screen}
-\par\medskip
 Open OnDemand is a web portal to the HPC: browse files, open a terminal, or start RStudio and Jupyter, all in your browser.
 Go to one of:
 
 \begin{itemize}
-    \item \cmd{https://hpcs05.op.umcutrecht.nl}
-    \item \cmd{https://hpcs06.op.umcutrecht.nl}
+    \item \link{https://hpcs05.op.umcutrecht.nl}
+    \item \link{https://hpcs06.op.umcutrecht.nl}
 \end{itemize}
 
-\includegraphics[width=\linewidth]{ondemand1.png}
-\end{frame}
-
-\begin{frame}[fragile]{Optional: log in from your own terminal}
-\small
-Not needed today: Open OnDemand is enough. Later, for \cmd{ssh} and \cmd{rsync} from your laptop:
-\begin{enumerate}
-    \item Make a separate key for the HPC, with a passphrase
-    \item Log in with that key; the first time, type \cmd{yes}
-\end{enumerate}
-\begin{lstlisting}
-ssh-keygen -t ed25519 -C "HPC" -f ~/.ssh/id_ed25519_hpc
-ssh -i ~/.ssh/id_ed25519_hpc \
-    <user>@hpcs05.op.umcutrecht.nl
-\end{lstlisting}
-\hint{Already have \cmd{~/.ssh/id_ed25519_hpc}? Keep using it}
+{\centering\includegraphics[width=.85\linewidth]{ondemand1.png}\par}
+\hint{From here on: type along if you have HPC access, otherwise follow on the screen}
 \end{frame}
 
 \begin{frame}[fragile]{Moving data to and from the HPC}
 \small
 \begin{itemize}
-    \item Use the \textbf{transfer nodes} for data: not the login nodes
+    \item Use the \textbf{transfer nodes} for data, not the login nodes
     \item \cmd{rsync} only copies what changed, and can continue after a broken connection
     \item Check big transfers with \cmd{md5sum} afterwards
 \end{itemize}
 \begin{lstlisting}[style=footnotesize]
+h=<user>@hpct04.op.umcutrecht.nl   # the transfer node
+
 # from your laptop to the HPC
-rsync -av --progress -e "ssh -i ~/.ssh/id_ed25519_hpc" data/ \
-    <user>@hpct04.op.umcutrecht.nl:/hpc/<group>/<user>/data/
+rsync -av --progress file.txt $h:/hpc/<group>/<user>/data/
 
 # from the HPC back to your laptop
-rsync -av -e "ssh -i ~/.ssh/id_ed25519_hpc" \
-    <user>@hpct04.op.umcutrecht.nl:/hpc/<group>/<user>/results/ \
-    results/
+rsync -av --progress \
+    $h:/hpc/<group>/<user>/data/file.txt results/
 \end{lstlisting}
-\hint{The trailing \cmd{/} matters: \cmd{data/} copies what is \emph{in} \cmd{data}.
-    Needs the HPC key from the optional slide; without it, use the file browser in Open OnDemand}
+\hint{Copying a directory? The trailing \cmd{/} matters: \cmd{data/} copies what is \emph{in} \cmd{data}}
 \end{frame}
 
 \begin{frame}{Exercises: moving data}
@@ -188,8 +175,9 @@ rsync -av -e "ssh -i ~/.ssh/id_ed25519_hpc" \
 
 \bigskip
 \begin{itemize}
-    \item These are limits: use more memory or time, and Slurm stops your job
-    \item The job then ends as \cmd{OUT_OF_MEMORY} or \cmd{TIMEOUT}
+    \item These are limits: use more memory or time, and Slurm stops your job.
+          It then ends as \cmd{OUT_OF_MEMORY} or \cmd{TIMEOUT}
+    \item Start more threads than cores, and they share your cores: no speed-up
 \end{itemize}
 \end{frame}
 
@@ -207,15 +195,12 @@ srun -c 2 --mem=4G --time=01:00:00 --pty bash
 \end{frame}
 
 \begin{frame}[fragile]{Demo: from the login node to a compute node}
-\begin{lstlisting}[style=footnotesize]
-# in a terminal in Open OnDemand
-hostname                    # hpcs05: the login node
+Watch the prompt: it changes from \cmd{hpcs05} to the compute node's name
+\begin{lstlisting}
 cd /hpc/<group>/<user>/data/HPC_intro/exercise_data
-
 srun -c 1 --mem=1G --time=00:30:00 --pty bash
-hostname                    # n0...: a compute node
 grep -c "^>" */assembly.fasta
-exit                        # back on the login node
+exit
 \end{lstlisting}
 \end{frame}
 
@@ -224,12 +209,8 @@ exit                        # back on the login node
 \begin{itemize}
     \item Environments are large: keep them out of your home directory, or you will hit its quota
     \item Install Miniforge itself in \cmd{/hpc/<group>/<user>/data/miniforge3} too: the installer asks where
-    \item Install and run tools on a compute node, not on the login node (\cmd{srun})
+    \item Installing on the login node is fine; run tools on a compute node (\cmd{srun}, \cmd{sbatch})
 \end{itemize}
-\begin{lstlisting}[style=footnotesize]
-conda config --add envs_dirs /hpc/<group>/<user>/conda/envs
-conda config --add pkgs_dirs /hpc/<group>/<user>/conda/pkgs
-\end{lstlisting}
 \end{frame}
 
 \begin{frame}[fragile]{\cmd{screen} keeps your work running when you disconnect}
@@ -241,7 +222,7 @@ conda config --add pkgs_dirs /hpc/<group>/<user>/conda/pkgs
 \end{itemize}
 \begin{lstlisting}
 screen -S assembly    # start a session called "assembly"
-Ctrl+A d              # detach, the session keeps running
+# Ctrl+A, then d      # detach, the session keeps running
 screen -ls            # list your sessions
 screen -r assembly    # reattach
 exit                  # close the session for good
@@ -276,23 +257,40 @@ Submitted batch job 1234567
 \end{frame}
 
 \begin{frame}[fragile]{A real job script: assembling genomes}
-\small What a real one looks like: no need to understand every line
 \begin{lstlisting}[style=footnotesize]
 #!/bin/bash
 #SBATCH --job-name=unicycler
 #SBATCH --output=unicycler_%j.log
 #SBATCH --error=unicycler_%j.err
 #SBATCH --cpus-per-task=16
-#SBATCH --time=72:00:00
-#SBATCH --gres=tmpspace:100G
 #SBATCH --mem=32G
+#SBATCH --time=72:00:00
 
-# Go through all R1 fastq files in the current directory
-for r1_file in *_R1*.fastq*; do
-    # Name of the paired read: replace _R1 with _R2
-    r2_file="${r1_file/_R1/_R2}"
-    ...
+for r1 in *_R1.fastq.gz; do
+    name="${r1%_R1.fastq.gz}"
+    fastp -i "$r1" -I "${name}_R2.fastq.gz" \
+        -o "${name}_1.fq.gz" -O "${name}_2.fq.gz" \
+        --thread "$SLURM_CPUS_PER_TASK"
+    unicycler -1 "${name}_1.fq.gz" -2 "${name}_2.fq.gz" \
+        -o "${name}_assembly" --threads "$SLURM_CPUS_PER_TASK"
+done
 \end{lstlisting}
+\hint{No need to understand every line. Full: \cmd{exercise_data/unicycler_job.sh}}
+\end{frame}
+
+\begin{frame}{\cmd{srun} or \cmd{sbatch}?}
+\small
+\begin{cmdtablex}{lLL}
+                     & \cmd{srun --pty bash}           & \cmd{sbatch job.sh}               \\
+    \midrule
+    How you work     & Type commands on a compute node & Slurm runs your script           \\
+    Your terminal    & Must stay open                  & Free: log out, go home           \\
+    Output           & On your screen                  & In a log file                    \\
+    Good for         & Testing, short tasks, installs  & Long runs, many samples          \\
+\end{cmdtablex}
+
+\bigskip
+Test interactively with \cmd{srun}, then put what works in a job script
 \end{frame}
 
 \begin{frame}[fragile]{Checking on your jobs}
@@ -322,7 +320,7 @@ sacct -j <jobid>            # a job that has finished
 \begin{itemize}
     \item Requested resources are reserved for you: nobody else can use them, even when your job does not
     \item Tell your tool to use them, usually with an option like
-          \cmd{--threads} or \cmd{--mem}
+          \cmd{--threads} or \cmd{--memory}
     \item More cores is not always faster: twenty people do not dig a hole ten times faster than two
     \item Check what your job really used with \cmd{seff}, and adjust next time
 \end{itemize}
@@ -351,17 +349,17 @@ Memory Efficiency: 76.25% of 8.00 GB
     \textbf{Job A}
     \begin{lstlisting}[style=output]
 State: COMPLETED
-Cores per node: 16
-CPU Efficiency: 6.25% of 03:50:24
-Memory Efficiency: 3.75% of 32.00 GB
+Cores: 16
+CPU eff.: 6.25% of 03:50:24
+Mem eff.: 3.75% of 32 GB
 \end{lstlisting}
     \column{0.49\textwidth}
     \textbf{Job B}
     \begin{lstlisting}[style=output]
 State: OUT_OF_MEMORY
-Cores per node: 4
-CPU Efficiency: 91.45% of 00:45:00
-Memory Efficiency: 99.75% of 8.00 GB
+Cores: 4
+CPU eff.: 91.45% of 00:45:00
+Mem eff.: 99.75% of 8 GB
 \end{lstlisting}
 \end{columns}
 \small
@@ -382,9 +380,10 @@ What went wrong, and what would you request next time?
     \item Move big data through the transfer nodes
     \item Clean up: remove data you no longer need from the project directory
     \item Stuck?
-          Ask your colleagues, or mail \cmd{hpcsupport@umcutrecht.nl}
+          Ask your colleagues, or email \cmd{hpcsupport@umcutrecht.nl}
 \end{itemize}
 \end{frame}
+
 \begin{frame}{What you learned today, and where to get help}
 \small
 \begin{columns}[T,onlytextwidth]
@@ -394,15 +393,23 @@ What went wrong, and what would you request next time?
         \item Move around, work with files, \cmd{find}, \cmd{grep}, loops and scripts
         \item Save your work with Git and GitHub
         \item Install tools in Conda environments
-        \item Log in on the HPC, and run jobs with \cmd{srun} and \cmd{sbatch}
+        \item Log in to the HPC, and run jobs with \cmd{srun} and \cmd{sbatch}
     \end{itemize}
     \column{0.52\textwidth}
     \textbf{Help}
     \begin{itemize}
-        \item \cmd{<command> --help} and \cmd{man <command>}
+        \item \cmd{<command> --help} and \mbox{\cmd{man <command>}}
         \item \cmd{exercises/}, and the answers in \cmd{exercises/solutions/}
         \item \cmd{hpcsupport@umcutrecht.nl}
     \end{itemize}
 \end{columns}
+
+\bigskip
+Those 200 FASTQ files? Check them with \cmd{md5sum}, keep your script in Git,
+install the assembler with Conda, and run it with \cmd{sbatch}
+
+\medskip
+\textbf{Next steps}: the Software Carpentry lessons on the shell and Git
+(\link{https://software-carpentry.org/lessons})
 \end{frame}
 

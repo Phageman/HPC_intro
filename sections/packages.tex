@@ -10,8 +10,8 @@
     \small
     Installing tools yourself is hard:
     \begin{itemize}
-        \item No admin rights on the HPC, so no \cmd{sudo apt install}
-        \item Tools need specific versions of other software, which conflict with each other
+        \item No admin rights on the HPC, so no \mbox{\cmd{sudo apt install}}
+        \item Tools need specific versions of other software, and those versions can conflict
         \item ``It works on my computer'' is not reproducible
     \end{itemize}
     \medskip
@@ -46,32 +46,33 @@
 \begin{cmdtablex}{lLll}
     \textbf{Installer}  & \textbf{Includes}           & \textbf{Channel}     & \textbf{Licence}           \\
     \midrule
-    Anaconda            & conda + ready-made packages & defaults             & Paid if $\geq$ 200 staff   \\
-    Miniconda3          & conda                       & defaults             & Paid if $\geq$ 200 staff   \\
-    \textbf{Miniforge3} & \textbf{conda + mamba}      & \textbf{conda-forge} & \textbf{Open source, free} \\
+    Anaconda            & Conda + many packages       & defaults             & Paid if $\geq$ 200 staff$^*$ \\
+    Miniconda3          & Conda                       & defaults             & Paid if $\geq$ 200 staff$^*$ \\
+    \textbf{Miniforge3} & \textbf{Conda + Mamba}      & \textbf{conda-forge} & \textbf{Open source, free}   \\
 \end{cmdtablex}
 
-\medskip
-\footnotesize
-\textbf{Mamba}: a faster Conda. Conda now uses its solver, so the two behave the same.
+{\scriptsize $^*$Anaconda Terms of Service (2024), for its defaults channel. Conda itself is free\par}
 
 \medskip
-Install Miniforge (Mac and Linux):
+\textbf{Mamba}: a faster Conda. Since Conda 23.10, Conda uses Mamba's solver, so both are fast now.
+
+\medskip
+Install Miniforge (Mac, Linux and WSL):
 \begin{lstlisting}[style=scriptsize]
 m=https://github.com/conda-forge/miniforge
 f=Miniforge3-$(uname)-$(uname -m).sh    # installer for your computer
 curl -LO $m/releases/latest/download/$f
 bash $f
 \end{lstlisting}
-\hint{When the installer asks to initialize conda, type \cmd{yes}.
+\hint{When the installer asks to initialize Conda, type \cmd{yes}.
     On the HPC, when it asks where to install, type \cmd{/hpc/<group>/<user>/data/miniforge3}}
 \end{frame}
 
-\begin{frame}[fragile]{Conda-forge and Bioconda are preferred over defaults}
+\begin{frame}[fragile]{Use conda-forge and Bioconda instead of defaults}
 \small
 \begin{itemize}
     \item \textbf{conda-forge}: community channel with general software (Python, R, compilers, \ldots)
-    \item \textbf{Bioconda}: bioinformatics tools, builds on top of conda-forge.
+    \item \textbf{Bioconda}: bioinformatics tools, built on top of conda-forge.
           R packages from Bioconductor are here as \cmd{bioconductor-<name>}
     \item \textbf{defaults}: Anaconda's own channel.
           Licence restrictions, and mixing it with conda-forge can cause conflicts
@@ -82,10 +83,12 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 conda config --set channel_priority strict
 \end{lstlisting}
-\hint{Miniforge already uses conda-forge: the new parts are Bioconda and strict priority}
+\hint{Miniforge already uses conda-forge: the new parts are Bioconda and strict priority.
+    Apple Silicon Mac: some Bioconda tools have no ARM build; use \cmd{CONDA_SUBDIR=osx-64} or the HPC}
 \end{frame}
 
 \begin{frame}[fragile]{The basic Conda workflow}
+One environment per project: create it once, activate it every time
 \begin{lstlisting}
 conda create -n qc seqkit   # new env with seqkit
 conda activate qc           # start using it
@@ -116,7 +119,7 @@ conda env remove -n qc      # delete an environment
     \begin{itemize}
         \item A container holds the tool, its dependencies \emph{and} the operating system: it runs the same everywhere
         \item On the HPC use \textbf{Apptainer}: Docker needs admin rights
-        \item Apptainer runs Docker images
+        \item Apptainer can run Docker images: it converts them to \cmd{.sif}
         \item \textbf{BioContainers}: every Bioconda package automatically gets a container
     \end{itemize}
     \column{0.28\textwidth}
@@ -129,7 +132,7 @@ export APPTAINER_CACHEDIR=/hpc/<group>/<user>/apptainer_cache
 apptainer pull \
     docker://quay.io/biocontainers/seqkit:2.14.0--hb192632_0
 apptainer exec seqkit_2.14.0--hb192632_0.sif \
-    seqkit stats assembly.fasta
+    seqkit stats sample_A/assembly.fasta
 \end{lstlisting}
 \hint{Images are large: pull on a compute node, with the cache outside your home}
 \end{frame}

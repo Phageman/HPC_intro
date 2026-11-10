@@ -29,7 +29,7 @@
 # conda env list
 
 ## 3.6 Share your environment
-# conda env export -n qc --no-builds > environment.yml
+# conda env export -n qc --from-history > environment.yml
 # git add environment.yml
 # git commit -m "Add qc environment"
 # git push
