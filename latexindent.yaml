@@ -1,6 +1,6 @@
 # Settings for latexindent, so the source keeps one layout.
 # Format all files:
-#   latexindent -l -s -w -c=/tmp main.tex sections/*.tex
+#   latexindent -l -s -w -c=/tmp *.tex sections/*.tex
 # (-l reads this file, -w overwrites in place, -c puts backups in /tmp)
 
 defaultIndent: "    "

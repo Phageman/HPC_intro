@@ -1,14 +1,14 @@
 %% ====================================================================
-%% Command line and HPC workshop
+%% Command line and HPC workshop: shared preamble for all decks
+%% Each deck (1_command_line_basics.tex, 2_git.tex, 3_package_management.tex,
+%% 4_hpc.tex) loads this file and inputs its slides from sections/.
 %% Build:  latexmk   (settings in latexmkrc)
-%% Format: latexindent -l -s -w -c=/tmp main.tex sections/*.tex
-%% Check:  chktex -l chktexrc main.tex sections/*.tex
-%% Slides live in sections/, one file per section.
+%% Format: latexindent -l -s -w -c=/tmp *.tex sections/*.tex
+%% Check:  chktex -l chktexrc *.tex sections/*.tex
 %% Diagrams: images/diagrams/*.drawio, edit them in drawio;
 %%           latexmk exports them to PDF (see latexmkrc).
 %% ====================================================================
 
-\documentclass[t]{beamer}
 \usetheme{Frankfurt}
 \usecolortheme{whale}
 
@@ -26,7 +26,7 @@
 % Keep -- as two dashes in typewriter text (--help, --mem, ...)
 \usepackage{microtype}
 \DisableLigatures[-]{encoding=T1,family=tt*}
-% Small diagrams drawn in the slides (Slurm queue, Git staging)
+% Small diagram drawn in the slides (Slurm queue in sections/hpc.tex)
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
 
@@ -153,26 +153,19 @@
 %% Metadata
 %% ====================================================================
 
-\title{Command line and HPC workshop}
+% Each deck sets its own \title
+\subtitle{Command line and HPC workshop}
 \date{24 November 2026}
 \author{Doğukan Bayraktar}
 
-%% ====================================================================
-%% Slides
-%% ====================================================================
+% Title slide with logos, the first slide of every deck
+\newcommand{\titleframe}{%
+    \begin{frame}[c]
+    \titlepage
+    {\centering
+        \includegraphics[height=.12\textheight]{logo/umcu.png}\hspace{2em}%
+        \includegraphics[height=.12\textheight]{logo/mmbbioit.png}\par}
+    \end{frame}}
 
-\begin{document}
-
-\begin{frame}[c]
-\titlepage
-{\centering
-    \includegraphics[height=.12\textheight]{logo/umcu.png}\hspace{2em}%
-    \includegraphics[height=.12\textheight]{logo/mmbbioit.png}\par}
-\end{frame}
-
-\input{sections/cli}
-\input{sections/git}
-\input{sections/packages}
-\input{sections/hpc}
-
-\end{document}
+% For decks with a single section: no "Next section" slide
+\newcommand{\nosectionslide}{\AtBeginSection[]{}}

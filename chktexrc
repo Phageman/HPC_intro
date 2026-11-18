@@ -1,5 +1,5 @@
 # Settings for chktex. Check all files:
-#   chktex -l chktexrc main.tex sections/*.tex
+#   chktex -l chktexrc *.tex sections/*.tex
 # Do not check the argument of \cmd{...}: it is typed as-is,
 # so $ _ ^ inside it are not math
 WipeArg { \cmd:{} }

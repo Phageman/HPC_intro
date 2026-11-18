@@ -1,7 +1,8 @@
-# Build the slides with: latexmk
+# Build all four decks with: latexmk   (one deck: latexmk 2_git.tex)
 # Clean up build files with: latexmk -c
+$clean_ext = 'nav snm vrb';   # beamer files latexmk does not know about
 $pdf_mode = 1;
-@default_files = ('main.tex');
+@default_files = ('1_command_line_basics.tex', '2_git.tex', '3_package_management.tex', '4_hpc.tex');
 $pdflatex = 'pdflatex -interaction=nonstopmode -halt-on-error -file-line-error %O %S';
 
 # Diagrams: images/diagrams/<name>.drawio -> <name>.pdf

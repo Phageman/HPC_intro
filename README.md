@@ -5,7 +5,11 @@ Conda and the UMC Utrecht HPC.
 
 ## For participants
 
-- **Slides:** [main.pdf](main.pdf)
+- **Slides**, one deck per section, in this order:
+  1. [Command-line basics](1_command_line_basics.pdf)
+  2. [Git](2_git.pdf)
+  3. [Package management](3_package_management.pdf)
+  4. [The HPC](4_hpc.pdf)
 - **Exercises:** [exercises/](exercises/), one file per section, with [solutions](exercises/solutions/)
 - **Data for the exercises:** [exercise_data/](exercise_data/)
 
@@ -24,10 +28,11 @@ Then follow [exercises/README.md](exercises/README.md).
 
 ```
 HPC_intro/
-├── main.pdf          # the slides
+├── *.pdf             # the slides: one deck per section, numbered in presenting order
 ├── exercises/        # numbered exercises per section, and solutions/
 ├── exercise_data/    # small FASTA and FASTQ files used in the exercises
-├── main.tex          # slide source: preamble, then one file per section
+├── *.tex             # one file per deck: title, then its slides from sections/
+├── preamble.tex      # shared by all decks: theme, packages, helper commands
 ├── sections/         # cli.tex, git.tex, packages.tex, hpc.tex
 └── images/           # photos (JPEG), logos and screenshots (PNG),
                       # diagrams/ (drawio sources, exported to PDF)
@@ -38,17 +43,18 @@ HPC_intro/
 Needs a TeX distribution with `latexmk` and `pdflatex`.
 
 ```bash
-latexmk               # build main.pdf (settings in latexmkrc)
+latexmk               # build all four decks (settings in latexmkrc)
+latexmk 2_git.tex     # build one deck
 latexmk -c            # remove build files
-chktex -l chktexrc main.tex sections/*.tex                 # check
-latexindent -l -s -w -c=/tmp main.tex sections/*.tex       # format
+chktex -l chktexrc *.tex sections/*.tex                    # check
+latexindent -l -s -w -c=/tmp *.tex sections/*.tex          # format
 ```
 
 Diagrams are edited in [drawio](https://www.drawio.com/) as `images/diagrams/*.drawio`.
 `latexmk` exports a diagram to PDF when its `.drawio` file has changed; this needs the
 drawio desktop app. The exported PDFs are committed, so building without drawio works.
 
-The preamble in `main.tex` documents the helper commands used in the slides,
+The shared preamble in `preamble.tex` documents the helper commands used in the slides,
 such as `\cmd{...}` for commands typed as-is and `\begin{exlist}` for exercise slides.
 
 ## Author

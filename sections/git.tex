@@ -7,8 +7,8 @@
 \begin{columns}[c]
     \column{0.65\textwidth}
     \begin{itemize}
-        \item Git is a version control system
-        \item It saves snapshots (\emph{commits}) of your files
+        \item Git remembers every saved version of your files
+        \item Each saved version is a snapshot, called a \emph{commit}
         \item Go back to any earlier version
         \item See who changed what, when and why
         \item Work together on the same code without overwriting each other's work
@@ -19,59 +19,70 @@
         \includegraphics[height=1.4cm]{logo/gitlab.png}
     \end{center}
     \centering\footnotesize
-    GitHub and GitLab host Git repositories online
+    GitHub and GitLab store Git projects online
 \end{columns}
 \end{frame}
 
-\begin{frame}{Git basics: saving snapshots}
+\begin{frame}{Git words you need first}
 \small
 \renewcommand{\arraystretch}{1.25}
 \begin{cmdtablex}{lL}
-    \textbf{Term} & \textbf{What it means}                                              \\
+    \textbf{Term}     & \textbf{What it means}                                                       \\
     \midrule
-    Repository    & A project directory whose history is tracked by Git                 \\
-    Clone         & Download a copy of a repository to your computer or the HPC         \\
-    Stage         & Pick the changes for your next commit (\cmd{git add})               \\
-    Commit        & Save a snapshot of your staged changes, with a message describing them \\
+    Repository (repo) & A project directory whose history Git keeps track of                        \\
+    Local repo        & The copy on your own computer or the HPC, where you work                     \\
+    Remote repo       & The copy online, on GitHub or GitLab; your clone calls it \cmd{origin}       \\
+    Clone             & Download a repository to your computer: this makes your local repo           \\
+    Fork              & Your own online copy of someone else's repository, which you are free to change \\
 \end{cmdtablex}
-
 \bigskip
-\begin{center}
-\begin{tikzpicture}[
-        box/.style={draw, rounded corners, align=center, font=\footnotesize,
-                text width=1.8cm, minimum height=1cm, fill=structure.fg!8},
-        arr/.style={-{Stealth}, thick},
-        lab/.style={font=\scriptsize\ttfamily, above=3pt}
-    ]
-    \node[box] (work) {Working\\directory};
-    \node[box, right=1.9cm of work] (stage) {Staging\\area};
-    \node[box, right=1.9cm of stage] (repo) {Repository\\(history)};
-    \draw[arr] (work) -- node[lab] {git add} (stage);
-    \draw[arr] (stage) -- node[lab] {git commit} (repo);
-\end{tikzpicture}
-\end{center}
-\hint{\cmd{git status} shows which changes are in which box}
+\hint{Not your repository? Fork it on GitHub first, then clone your fork.}
 \end{frame}
 
-\begin{frame}{Git basics: working with GitHub}
-\small
-\renewcommand{\arraystretch}{1.25}
-\begin{cmdtablex}{lL}
-    \textbf{Term} & \textbf{What it means}                                                                \\
-    \midrule
-    Remote        & The online repository your clone pushes to and pulls from, by default called \cmd{origin} \\
-    Push          & Upload your commits to the remote                                                     \\
-    Pull          & Download the latest commits from the remote                                           \\
-    Fork          & Your own online copy of someone else's repository, which you are free to change       \\
-\end{cmdtablex}
+\begin{frame}{Where your work lives}
+\begin{columns}[c,onlytextwidth]
+    \column{0.57\textwidth}
+    \includegraphics[width=\linewidth]{git_workflow.png}
+    \column{0.4\textwidth}
+    \scriptsize
+    \renewcommand{\arraystretch}{1.2}
+    \begin{cmdtablex}{@{}>{\raggedright\arraybackslash}p{1.3cm}L}
+        \textbf{Box}         & \textbf{What it is}                       \\
+        \midrule
+        Working tree         & Your files, as you edit them              \\
+        Staging area         & Changes picked for the next commit        \\
+        Local branch         & Your commits on your computer             \\
+        Remote-tracking ref  & Git's note of the remote at the last download \\
+        Remote branch        & The commits on GitHub                     \\
+    \end{cmdtablex}
+    \medskip
+    A \emph{branch} is one line of history. The main one is \cmd{main}
+    (\cmd{master} in older repos).
+\end{columns}
 \end{frame}
 
-\begin{frame}{How fork, clone, push and pull fit together}
-\diagram{git-workflow}
-
-\bigskip
-\centering\footnotesize Your own repository?
-Skip the fork and clone it directly.
+\begin{frame}{Moving your work between them}
+\begin{columns}[c,onlytextwidth]
+    \column{0.57\textwidth}
+    \includegraphics[width=\linewidth]{git_workflow.png}
+    \column{0.4\textwidth}
+    \scriptsize
+    \renewcommand{\arraystretch}{1.2}
+    \begin{cmdtablex}{@{}lL}
+        \textbf{git \ldots} & \textbf{What it does}            \\
+        \midrule
+        \cmd{add}        & Stage changes                       \\
+        \cmd{commit}     & Save staged changes as a snapshot   \\
+        \cmd{push}       & Upload your commits                 \\
+        \cmd{pull}       & Download commits into your files    \\
+        \midrule
+        \cmd{fetch}      & Download, but leave your files      \\
+        \cmd{checkout}   & Switch to another branch            \\
+        \cmd{merge}      & Combine a branch into yours         \\
+    \end{cmdtablex}
+    \medskip
+    Today you need only the top four.
+\end{columns}
 \end{frame}
 
 \begin{frame}[fragile]{The basic Git workflow}
