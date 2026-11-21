@@ -6,11 +6,11 @@ Conda and the UMC Utrecht HPC.
 ## For participants
 
 - **Slides**, one deck per section, in this order:
-  1. [Command-line basics](1_command_line_basics.pdf)
-  2. [Git](2_git.pdf)
-  3. [Package management](3_package_management.pdf)
-  4. [The HPC](4_hpc.pdf)
-  5. [Running pipelines](5_pipelines.pdf)
+  1. [Command-line basics](slides/1_command_line_basics.pdf)
+  2. [Git](slides/2_git.pdf)
+  3. [Package management](slides/3_package_management.pdf)
+  4. [The HPC](slides/4_hpc.pdf)
+  5. [Running pipelines](slides/5_pipelines.pdf)
 - **Exercises:** [exercises/](exercises/), one file per section, with [solutions](exercises/solutions/)
 - **Data for the exercises:** [exercise_data/](exercise_data/)
 
@@ -29,23 +29,30 @@ Then follow [exercises/README.md](exercises/README.md).
 
 ```
 HPC_intro/
-├── *.pdf             # the slides: one deck per section, numbered in presenting order
+├── slides/           # the slides: one PDF per section, numbered in presenting order
+│   └── source/       # LaTeX sources of the slides (only needed to change them)
 ├── exercises/        # numbered exercises per section, and solutions/
 ├── exercise_data/    # small FASTA and FASTQ files used in the exercises
-├── readqc/           # example Snakemake pipeline, laid out like the lab's pipelines
-├── *.tex             # one file per deck: title, then its slides from sections/
-├── preamble.tex      # shared by all decks: theme, packages, helper commands
-├── sections/         # cli.tex, git.tex, packages.tex, hpc.tex, pipelines.tex
-└── images/           # photos (JPEG), logos and screenshots (PNG),
-                      # diagrams/ (drawio sources, exported to PDF)
+└── readqc/           # example Snakemake pipeline, laid out like the lab's pipelines
 ```
 
 ## Building the slides
 
-Needs a TeX distribution with `latexmk` and `pdflatex`.
+Needs a TeX distribution with `latexmk` and `pdflatex`. Everything happens in `slides/source/`:
+
+```
+slides/source/
+├── *.tex             # one file per deck: title, then its slides from sections/
+├── preamble.tex      # shared by all decks: theme, packages, helper commands
+├── sections/         # cli.tex, git.tex, packages.tex, hpc.tex, pipelines.tex
+├── images/           # photos (JPEG), logos and screenshots (PNG),
+│                     # diagrams/ (drawio sources, exported to PDF)
+└── build/            # latexmk build files (gitignored)
+```
 
 ```bash
-latexmk               # build all five decks (settings in latexmkrc)
+cd slides/source
+latexmk               # build all five decks into slides/ (settings in latexmkrc)
 latexmk 2_git.tex     # build one deck
 latexmk -c            # remove build files
 chktex -l chktexrc *.tex sections/*.tex                    # check

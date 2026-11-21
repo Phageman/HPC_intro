@@ -13,3 +13,6 @@
 # latexindent
 indent.log
 *.bak[0-9]*
+
+# latexmk aux directory (see slides/source/latexmkrc)
+slides/source/build/

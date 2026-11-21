@@ -1,7 +1,11 @@
+# Run from slides/source.
 # Build all five decks with: latexmk   (one deck: latexmk 2_git.tex)
+# PDFs go to slides/, build files to build/ (gitignored).
 # Clean up build files with: latexmk -c
 $clean_ext = 'nav snm vrb';   # beamer files latexmk does not know about
 $pdf_mode = 1;
+$out_dir = '..';
+$aux_dir = 'build';
 @default_files = ('1_command_line_basics.tex', '2_git.tex', '3_package_management.tex', '4_hpc.tex', '5_pipelines.tex');
 $pdflatex = 'pdflatex -interaction=nonstopmode -halt-on-error -file-line-error %O %S';
 
