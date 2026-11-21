@@ -1,0 +1,27 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+
+description: "Schema for Snakemake config.yaml"
+
+type: object
+properties:
+  samplesheet:
+    type: string
+    description: "Path to the sample sheet file"
+    minLength: 1
+
+  fastp:
+    type: object
+    description: "Settings for fastp"
+    properties:
+      min_length:
+        type: integer
+        description: "Minimum read length after trimming"
+        minimum: 1
+    required:
+      - min_length
+    additionalProperties: false
+
+required:
+  - samplesheet
+  - fastp
+additionalProperties: false

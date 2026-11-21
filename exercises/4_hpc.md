@@ -27,7 +27,7 @@ Compute the checksums of both `R1` files: the original and the copy.
 
 ## screen (HPC access)
 
-### 4.4 A screen session ●●
+### 4.4 A screen session ●
 
 1. On the login node, start a `screen` session called `test`
 2. Detach from it (`Ctrl+A`, then `d`), and list your sessions
@@ -51,7 +51,7 @@ grep -c "^>" */assembly.fasta
 
 - **No HPC access**: run it on your laptop with `bash job.sh`.
   To the shell, `#SBATCH` lines are just comments
-- **HPC access**: submit it with `sbatch job.sh`, follow it with `squeue -u <user>`,
+- **HPC access**: submit it with `sbatch job.sh`, follow it with `squeue --me`,
   and read the log when it is done
 
 *Expected:* the same 3 counts as `./count.sh`; on the HPC in `count_<jobid>.log`

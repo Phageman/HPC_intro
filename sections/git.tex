@@ -3,14 +3,17 @@
 %% ====================================================================
 
 \section{Git}
-\begin{frame}{Git keeps track of every version of your code}
+\begin{frame}{Git is your lab journal for code}
+\emph{Every entry dated, signed, and never torn out}
+
+\medskip
 \begin{columns}[c]
     \column{0.65\textwidth}
     \begin{itemize}
-        \item Git remembers every saved version of your files
-        \item Each saved version is a snapshot, called a \emph{commit}
+        \item No more \cmd{protocol_v3_FINAL_real.docx}:
+              one file, with its whole history
+        \item Each entry is a \emph{commit}: what changed, who, when and why
         \item Go back to any earlier version
-        \item See who changed what, when and why
         \item Work together on the same code without overwriting each other's work
     \end{itemize}
     \column{0.35\textwidth}
@@ -35,61 +38,37 @@
     Clone             & Download a repository to your computer: this makes your local repo           \\
     Fork              & Your own online copy of someone else's repository, which you are free to change \\
 \end{cmdtablex}
-\bigskip
-\hint{Not your repository? Fork it on GitHub first, then clone your fork.}
 \end{frame}
 
 \begin{frame}{Where your work lives}
-\begin{columns}[c,onlytextwidth]
-    \column{0.57\textwidth}
-    \includegraphics[width=\linewidth]{git_workflow.png}
-    \column{0.4\textwidth}
-    \scriptsize
-    \renewcommand{\arraystretch}{1.2}
-    \begin{cmdtablex}{@{}>{\raggedright\arraybackslash}p{1.3cm}L}
-        \textbf{Box}         & \textbf{What it is}                       \\
-        \midrule
-        Working tree         & Your files, as you edit them              \\
-        Staging area         & Changes picked for the next commit        \\
-        Local branch         & Your commits on your computer             \\
-        Remote-tracking ref  & Git's note of the remote at the last download \\
-        Remote branch        & The commits on GitHub                     \\
-    \end{cmdtablex}
-    \medskip
-    A \emph{branch} is one line of history. The main one is \cmd{main}
-    (\cmd{master} in older repos).
-\end{columns}
+\diagram{git-areas}
+
+\bigskip
+\begin{itemize}
+    \item Git saves your work in steps: pick the changes, save them, share them
+    \item Each commit is a journal entry. Your local repo holds all of them
+    \item A \emph{branch} is one line of history. The main one is \cmd{main}
+          (\cmd{master} in older repos)
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Moving your work between them}
-\begin{columns}[c,onlytextwidth]
-    \column{0.57\textwidth}
-    \includegraphics[width=\linewidth]{git_workflow.png}
-    \column{0.4\textwidth}
-    \scriptsize
-    \renewcommand{\arraystretch}{1.2}
-    \begin{cmdtablex}{@{}lL}
-        \textbf{git \ldots} & \textbf{What it does}            \\
-        \midrule
-        \cmd{add}        & Stage changes                       \\
-        \cmd{commit}     & Save staged changes as a snapshot   \\
-        \cmd{push}       & Upload your commits                 \\
-        \cmd{pull}       & Download commits into your files    \\
-        \midrule
-        \cmd{fetch}      & Download, but leave your files      \\
-        \cmd{checkout}   & Switch to another branch            \\
-        \cmd{merge}      & Combine a branch into yours         \\
-    \end{cmdtablex}
-    \medskip
-    Today you need only the top four.
-\end{columns}
+\begin{frame}{Moving your work between the areas}
+\diagram{git-workflow}
+
+\medskip
+\begin{itemize}
+    \item \cmd{add}, \cmd{commit}: write your journal entry
+    \item \cmd{push}: file it on GitHub, like the department archive
+    \item \cmd{pull}: get what others, or you on another computer, pushed
+\end{itemize}
+\hint{Later, not needed today: \cmd{fetch} (download only), \cmd{switch} (change branch),
+    \cmd{merge} (combine branches)}
 \end{frame}
 
 \begin{frame}[fragile]{The basic Git workflow}
 Every working day: pull, edit, add, commit, push
 \begin{lstlisting}
-git clone git@github.com:<user>/<repo>.git
-cd <repo>
+cd HPC_intro            # your clone
 
 git pull                # get the latest changes
 # ... edit your files ...
@@ -98,22 +77,35 @@ git add <file>          # stage changes for the commit
 git commit -m "Describe what you changed"
 git push                # upload your commits
 \end{lstlisting}
-\hint{Cloning with \cmd{git@github.com:} needs your SSH key (exercise 2.4).
-    Without it, use the \cmd{https://} URL}
+\hint{\cmd{git push} needs your own fork and your SSH key (exercises 2.1, 2.4 and 2.7)}
+\end{frame}
+
+\begin{frame}{Your clone, the original and your fork}
+\emph{A fork is like copying another lab's protocol to adapt it}
+
+\smallskip
+\diagram{git-fork}
+
+\medskip
+\begin{itemize}
+    \item Fork the original on GitHub for a copy you own (exercise 2.1)
+    \item Point your clone at your fork with \cmd{set-url}, then push (exercise 2.7)
+\end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]{Useful Git commands for the exercises}
 \small
 \begin{cmdtablex}{lL}
-    \textbf{Command}                          & \textbf{What it does}                       \\
+    \textbf{git \ldots}               & \textbf{What it does}              \\
     \midrule
-    \cmd{git config --global user.name}       & Tell Git who you are (once per computer)    \\
-    \cmd{git diff}                            & Show changes you have not staged yet        \\
-    \cmd{git log --oneline}                   & List earlier commits                        \\
-    \cmd{git restore <file>}                  & Undo unstaged changes to a file             \\
-    \cmd{git remote -v}                       & Show where your clone pushes and pulls      \\
-    \cmd{git remote set-url origin <url>}     & Point your clone at another remote          \\
+    \cmd{diff}                        & Show unstaged changes              \\
+    \cmd{log --oneline}               & List earlier commits               \\
+    \cmd{restore <file>}              & Undo unstaged changes to a file    \\
+    \cmd{remote -v}                   & Show where you push and pull       \\
+    \cmd{remote set-url origin <url>} & Point your clone at another remote \\
 \end{cmdtablex}
+\medskip
+\hint{Once per computer: \cmd{git config --global user.name "<name>"}, and the same for \cmd{user.email} (exercise 2.3)}
 \end{frame}
 
 \begin{frame}{Exercises: Git}

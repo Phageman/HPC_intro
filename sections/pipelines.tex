@@ -1,0 +1,140 @@
+%% ====================================================================
+%% Pipelines
+%% ====================================================================
+
+\section[Pipelines]{Running pipelines with Snakemake}
+\begin{frame}{Why a pipeline instead of one big job script?}
+\small
+\begin{cmdtablex}{lLL}
+                  & \textbf{One job script}                & \textbf{A Snakemake pipeline}             \\
+    \midrule
+    Jobs          & One big job: samples one after another & One job per step and sample, many at once \\
+    A step fails  & Start everything again                 & Fix it: only failed and missing steps run \\
+    Resources     & Booked for the biggest step, all along & Each step books what it needs             \\
+    Keeping track & You check which samples are done       & Snakemake checks the files                \\
+\end{cmdtablex}
+
+\bigskip
+The lab's pipelines are Snakemake pipelines: you run them, you do not have to write them
+\end{frame}
+
+\begin{frame}{A pipeline runs every step, for every sample}
+\diagram{readqc-dag}
+
+\bigskip
+\begin{itemize}
+    \item Each step's output is the next step's input: Snakemake works out the order
+    \item Every step runs as its own Slurm job, many at the same time
+    \item Run it again and only missing or failed steps run
+    \item The lab's pipelines are Snakemake pipelines, laid out like today's example:
+          \cmd{HPC_intro/readqc}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Inside a pipeline directory}
+\small
+\DTsetlength{0.2em}{1em}{0.2em}{0.4pt}{1.6pt}
+\renewcommand*\DTstyle{\ttfamily}
+\renewcommand*\DTstylecomment{\rmfamily\footnotesize\color{darkgray}}
+\dirtree{%
+.1 readqc/.
+.2 README.md\DTcomment{how to install and run it}.
+.2 snakemake\_*\_conda\_spec.txt\DTcomment{to create the \texttt{snakemake} env}.
+.2 \alert{config/}\DTcomment{\alert{yours: what to run on, and how}}.
+.3 \alert{config.yaml}\DTcomment{the settings, e.g.\ \texttt{min\_length}}.
+.3 \alert{sample\_table.csv}\DTcomment{your samples: you write this}.
+.2 workflow/\DTcomment{the pipeline itself: leave it as it is}.
+.3 Snakefile\DTcomment{the start: loads the rules}.
+.3 rules/\DTcomment{the steps, e.g.\ \texttt{qc.smk}}.
+.3 envs/\DTcomment{the tools, with their exact versions}.
+.3 profiles/\DTcomment{how to run: \texttt{hpc\_slurm/} or \texttt{local/}}.
+.3 schemas/\DTcomment{checks your config and sample sheet}.
+.2 results/, logs/\DTcomment{appear when you run it}.
+}
+
+\bigskip
+The lab's pipelines have the same layout: \alert{\texttt{config/}} is yours,
+\texttt{workflow/} is the pipeline
+\end{frame}
+
+\begin{frame}[fragile]{A step is a \emph{rule}: from input files to output files}
+\begin{lstlisting}[style=footnotesize]
+rule seqkit_stats:
+    input:
+        rules.fastp.output.fwd,
+        rules.fastp.output.rev,
+    output:
+        "results/{sample}/02_stats/{sample}_stats.tsv",
+    conda:
+        "../envs/qc.yaml"
+    log:
+        "logs/seqkit_stats/{sample}.log",
+    shell:
+        "seqkit stats -a -T {input} > {output} 2> {log}"
+\end{lstlisting}
+\hint{From \cmd{readqc/workflow/rules/qc.smk}}
+\end{frame}
+
+\begin{frame}[fragile]{The sample sheet: which reads belong to which sample}
+You write it yourself: one line per sample, the columns separated by commas
+\begin{lstlisting}[style=scriptsize,language={}]
+sample_name,fastq_r1,fastq_r2
+sample_A,../exercise_data/sample_A/sample_A_R1.fastq.gz,../exercise_data/sample_A/sample_A_R2.fastq.gz
+\end{lstlisting}
+\small
+\begin{cmdtablex}{lL}
+    \textbf{Column}     & \textbf{What goes in it}                       \\
+    \midrule
+    \cmd{sample_name}   & The name: it becomes \cmd{results/<sample>/}   \\
+    \cmd{fastq_r1}      & Where the R1 reads are                         \\
+    \cmd{fastq_r2}      & Where the R2 reads are                         \\
+\end{cmdtablex}
+
+\bigskip
+Paths start from \cmd{readqc}, so \cmd{../exercise_data} is one directory up.
+The first line, with the column names, must stay exactly as it is
+\end{frame}
+
+\begin{frame}[fragile]{Running a pipeline on the HPC}
+In \cmd{readqc}, on the login node (fine: Snakemake only submits jobs)
+\begin{lstlisting}[style=footnotesize]
+conda activate snakemake       # create it once, see README
+
+# 1. sample sheet: which reads belong to which sample
+nano config/sample_table.csv
+
+# 2. dry run: what would run? Nothing runs yet
+snakemake -j unlimited -n \
+    --workflow-profile workflow/profiles/hpc_slurm/
+
+# 3. run it: Snakemake submits every step to Slurm
+snakemake -j unlimited \
+    --workflow-profile workflow/profiles/hpc_slurm/
+\end{lstlisting}
+\hint{Start it in \cmd{screen}: Snakemake keeps going until the last job is done.
+    On your laptop: \cmd{--workflow-profile workflow/profiles/local/}}
+\hint{Not in Slurm account \cmd{dla_mm}? Set \cmd{slurm_account} in the profile}
+\end{frame}
+
+\begin{frame}{Exercises: a Snakemake pipeline}
+\begin{exlist}{5_pipelines.md}
+    \ex{5.1}{Set up the pipeline}{1}
+    \ex{5.2}{Dry run}{1}
+    \ex{5.3}{Run it}{1}
+    \ex{5.4}{Run it again}{2}
+    \ex{5.5}{Change a setting}{3}
+\end{exlist}
+\end{frame}
+
+\begin{frame}{What you learned today}
+\begin{itemize}
+    \item Move around, work with files, \cmd{find}, \cmd{grep}, loops and scripts
+    \item Save your work with Git and GitHub
+    \item Install tools in Conda environments
+    \item Log in to the HPC, run jobs with \cmd{srun} and \cmd{sbatch}, and run a pipeline
+\end{itemize}
+
+\bigskip
+Those 200 FASTQ files? Check them with \cmd{md5sum}, keep your script in Git,
+install the assembler with Conda, and run it with \cmd{sbatch}
+\end{frame}

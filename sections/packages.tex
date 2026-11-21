@@ -41,35 +41,41 @@
 \end{cmdtablex}
 \end{frame}
 
-\begin{frame}[fragile]{Install Miniforge, not Anaconda}
-\footnotesize
+\begin{frame}{Install Miniforge, not Anaconda}
+\small
 \begin{cmdtablex}{lLll}
-    \textbf{Installer}  & \textbf{Includes}           & \textbf{Channel}     & \textbf{Licence}           \\
+    \textbf{Installer}  & \textbf{Includes}      & \textbf{Channel}     & \textbf{Licence}             \\
     \midrule
-    Anaconda            & Conda + many packages       & defaults             & Paid if $\geq$ 200 staff$^*$ \\
-    Miniconda3          & Conda                       & defaults             & Paid if $\geq$ 200 staff$^*$ \\
-    \textbf{Miniforge3} & \textbf{Conda + Mamba}      & \textbf{conda-forge} & \textbf{Open source, free}   \\
+    Anaconda            & Conda + extras         & defaults             & Paid if $\geq$ 200 staff$^*$ \\
+    Miniconda3          & Conda                  & defaults             & Paid if $\geq$ 200 staff$^*$ \\
+    \textbf{Miniforge3} & \textbf{Conda + Mamba} & \textbf{conda-forge} & \textbf{Open source, free}   \\
 \end{cmdtablex}
 
-{\scriptsize $^*$Anaconda Terms of Service (2024), for its defaults channel. Conda itself is free\par}
+\smallskip
+\hint{$^*$Anaconda Terms of Service (2024), for its defaults channel. Conda itself is free}
 
-\medskip
-\textbf{Mamba}: a faster Conda. Since Conda 23.10, Conda uses Mamba's solver, so both are fast now.
+\bigskip
+\textbf{Mamba}: a faster Conda. Since Conda 23.10, Conda uses Mamba's solver, so both are fast now
+\end{frame}
 
-\medskip
-Install Miniforge (Mac, Linux and WSL):
-\begin{lstlisting}[style=scriptsize]
+\begin{frame}[fragile]{Installing Miniforge}
+On Mac, Linux and WSL, these lines download the installer for your computer and run it:
+\begin{lstlisting}
 m=https://github.com/conda-forge/miniforge
-f=Miniforge3-$(uname)-$(uname -m).sh    # installer for your computer
+f=Miniforge3-$(uname)-$(uname -m).sh    # your system
 curl -LO $m/releases/latest/download/$f
 bash $f
 \end{lstlisting}
-\hint{When the installer asks to initialize Conda, type \cmd{yes}.
-    On the HPC, when it asks where to install, type \cmd{/hpc/<group>/<user>/data/miniforge3}}
+\begin{itemize}
+    \item When the installer asks to initialize Conda, type \cmd{yes}, then open a new terminal
+    \item On the HPC, when it asks where to install, type \cmd{/hpc/<group>/<user>/data/miniforge3}
+\end{itemize}
+\hint{Copy the lines from exercise 3.1 instead of typing them}
 \end{frame}
 
 \begin{frame}[fragile]{Use conda-forge and Bioconda instead of defaults}
 \small
+\emph{Channels are suppliers, and defaults is the one with licence fees}
 \begin{itemize}
     \item \textbf{conda-forge}: community channel with general software (Python, R, compilers, \ldots)
     \item \textbf{Bioconda}: bioinformatics tools, built on top of conda-forge.
@@ -88,6 +94,9 @@ conda config --set channel_priority strict
 \end{frame}
 
 \begin{frame}[fragile]{The basic Conda workflow}
+\emph{An environment is a kit for one assay, with exact lot numbers}
+
+\smallskip
 One environment per project: create it once, activate it every time
 \begin{lstlisting}
 conda create -n qc seqkit   # new env with seqkit
@@ -98,6 +107,8 @@ conda deactivate            # stop using it
 
 conda env list              # all your environments
 conda env remove -n qc      # delete an environment
+# share it: the reagent list for your methods section
+conda env export -n qc --from-history > environment.yml
 \end{lstlisting}
 \end{frame}
 
@@ -112,27 +123,3 @@ conda env remove -n qc      # delete an environment
 \end{exlist}
 \end{frame}
 
-\begin{frame}[fragile]{Containers package the whole system, not just your tools}
-\begin{columns}[c]
-    \column{0.7\textwidth}
-    \small
-    \begin{itemize}
-        \item A container holds the tool, its dependencies \emph{and} the operating system: it runs the same everywhere
-        \item On the HPC use \textbf{Apptainer}: Docker needs admin rights
-        \item Apptainer can run Docker images: it converts them to \cmd{.sif}
-        \item \textbf{BioContainers}: every Bioconda package automatically gets a container
-    \end{itemize}
-    \column{0.28\textwidth}
-    \centering
-    \includegraphics[height=1.3cm]{logo/apptainer.png}\\[0.3cm]
-    \includegraphics[width=0.9\linewidth]{logo/docker.png}
-\end{columns}
-\begin{lstlisting}[style=footnotesize]
-export APPTAINER_CACHEDIR=/hpc/<group>/<user>/apptainer_cache
-apptainer pull \
-    docker://quay.io/biocontainers/seqkit:2.14.0--hb192632_0
-apptainer exec seqkit_2.14.0--hb192632_0.sif \
-    seqkit stats sample_A/assembly.fasta
-\end{lstlisting}
-\hint{Images are large: pull on a compute node, with the cache outside your home}
-\end{frame}

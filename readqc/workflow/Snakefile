@@ -1,0 +1,23 @@
+from snakemake.utils import min_version
+
+min_version("8.24.1")
+
+
+configfile: "config/config.yaml"
+
+
+include: "rules/common.smk"
+include: "rules/qc.smk"
+
+
+rule all:
+    input:
+        collect(
+            [
+                "results/{sample}/01_trim/{sample}_trimmed_R1.fastq.gz",
+                "results/{sample}/01_trim/{sample}_trimmed_R2.fastq.gz",
+                "results/{sample}/02_stats/{sample}_stats.tsv",
+                "results/stats_merged.tsv",
+            ],
+            sample=SAMPLES,
+        ),

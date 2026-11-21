@@ -37,10 +37,10 @@ You type commands in the terminal and press \cmd{Enter} to run them
 \end{frame}
 
 \begin{frame}[fragile]{Before we start: get the data for today}
-Git clone the workshop repository
+Download the workshop repository with Git
 \begin{lstlisting}
 cd ~                          # laptop: home
-cd /hpc/<group>/<user>/data   # HPC: data directory
+cd /hpc/<group>/<user>/data   # HPC: project directory
 git clone https://github.com/bayraktar1/HPC_intro.git
 cd HPC_intro/exercise_data
 \end{lstlisting}
@@ -65,8 +65,22 @@ cd HPC_intro/exercise_data
 \end{tabular}
 \end{frame}
 
+\begin{frame}{You will not break anything today}
+\begin{itemize}
+    \item Error messages are normal: read the last line, then try again or ask
+    \item Most commands only read your files
+    \item Two can delete files: \cmd{rm} deletes with no recycle bin, and \cmd{>} overwrites a file
+    \item Stuck? Raise your hand at any time
+\end{itemize}
+\bigskip
+\hint{Paste in a terminal: \cmd{Cmd+V} on a Mac, \cmd{Ctrl+Shift+V} on Linux, right-click or \cmd{Ctrl+V} in WSL}
+\end{frame}
+
 \subsection{Files and paths}
 \begin{frame}{Every command has the same anatomy}
+\emph{Like a protocol step: the action, its settings, and the sample}
+
+\medskip
 \diagram{command-anatomy}
 
 \bigskip
@@ -153,8 +167,6 @@ cd ~/HPC_intro/exercise_data
     \cmd{Ctrl+L}              & Clear the screen                \\
 \end{cmdtable}
 
-\bigskip
-Use \cmd{Tab} all the time: it is faster and prevents typos in file names
 \end{frame}
 
 \begin{frame}{Looking at files}
@@ -187,7 +199,7 @@ These only read: they never change your file
     \cmd{nano <file>}      & Edit a file (\cmd{Ctrl+O}, \cmd{Enter}: save; \cmd{Ctrl+X}: quit) \\
     \cmd{cp <file> <copy>} & Copy a file                                                       \\
     \cmd{mv <file> <new>}  & Move or rename a file                                             \\
-    \cmd{rm <file>}        & Delete a file: \alert{no undo, no trash!}                         \\
+    \cmd{rm <file>}        & Delete a file: \alert{no undo, no recycle bin!}                       \\
     \cmd{rmdir <dir>}      & Remove an empty directory                                         \\
 \end{cmdtable}
 \end{frame}
@@ -202,24 +214,29 @@ These only read: they never change your file
 \begin{frame}{Some characters have a special meaning}
 \small
 \begin{cmdtablex}{lLl}
-    \textbf{Char} & \textbf{Meaning}                                     & \textbf{Example}               \\
+    \textbf{Character} & \textbf{Meaning}                               & \textbf{Example}               \\
     \midrule
     \cmd{~}       & Your home directory                                  & \cmd{cd ~}                     \\
     \cmd{.}       & The current directory                                & \cmd{cp ~/notes.txt .}         \\
     \cmd{..}      & One directory up                                     & \cmd{cd ..}                    \\
-    \cmd{/}       & Between directories, or the top                     & \cmd{/home/student}            \\
+    \cmd{/}       & Between directories, or the top directory (root)    & \cmd{/home/student}            \\
     \cmd{*}       & Any text (wildcard)                                  & \cmd{ls sample_*}              \\
     \cmd{"..."}   & Keep text with spaces together                       & \cmd{mkdir "my results"}       \\
 \end{cmdtablex}
 \end{frame}
 
-\begin{frame}[fragile]{Checksums tell you if your data arrived intact}
-\small
+\begin{frame}{Checksums tell you if your data arrived intact}
+\emph{Like checking a delivery against the packing list}
+
+\medskip
 \begin{itemize}
     \item A checksum is a file's fingerprint: change one byte and it changes completely
     \item Transfers can silently corrupt files: a broken \cmd{.fastq.gz} can look fine until your analysis fails
     \item Data often comes with checksums: check them \textbf{before} you start, and before deleting originals
 \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Checking checksums with \cmd{md5sum}}
 \begin{lstlisting}
 md5sum sample_A/sample_A_R1.fastq.gz   # one file
 md5sum -c MD5.txt                      # check the list
@@ -231,6 +248,7 @@ sample_A/sample_A_R2.fastq.gz: OK
 md5sum: WARNING: 1 computed checksum did NOT match
 \end{lstlisting}
 \hint{A file marked \cmd{FAILED}: transfer it again}
+\hint{Mac: no \cmd{md5sum}? Install it with \cmd{brew install coreutils}}
 \end{frame}
 
 \begin{frame}{Exercises: checksums}
@@ -273,14 +291,11 @@ grep -i "chromosome" sample_B/assembly.fasta
 \cmd{<command> | <command>}: everything the left command prints goes into the right one
 \begin{lstlisting}
 ls sample_B | wc -l          # count files
-
-# the first 3 headers
+# the first 3 headers (chain as many | as you like)
 grep "^>" sample_C/assembly.fasta | head -n 3
-
 # > writes the output to a file instead of the screen
 grep "^>" sample_C/assembly.fasta > headers.txt
 \end{lstlisting}
-{\small You can chain as many commands as you like: \cmd{a | b | c}\par}
 
 \medskip
 \begin{alertblock}{\cmd{>} overwrites without asking}
@@ -300,6 +315,7 @@ grep "^>" sample_C/assembly.fasta > headers.txt
 \end{frame}
 
 \begin{frame}[fragile]{More powerful commands: \cmd{for} loop}
+\emph{The same protocol on every sample on the plate}
 \begin{block}{Syntax}
     \cmd{for <var> in <list>; do <command> "$<var>"; done}
 \end{block}
@@ -308,15 +324,17 @@ for f in sample_B/*.fastq.gz; do
     md5sum "$f"
 done
 \end{lstlisting}
-\pause
-{\small This runs the command once for every file:\par}
+\end{frame}
+
+\begin{frame}[fragile]{What the \cmd{for} loop does}
+This runs the command once for every file:
 \begin{lstlisting}
 # round 1: $f is sample_B/sample_B_R1.fastq.gz
 md5sum "sample_B/sample_B_R1.fastq.gz"
 # round 2: $f is sample_B/sample_B_R2.fastq.gz
 md5sum "sample_B/sample_B_R2.fastq.gz"
 \end{lstlisting}
-\pause
+\bigskip
 \begin{itemize}
     \item \cmd{f} is a variable: every round it holds the next file name
     \item \cmd{$f} gives its value.
@@ -347,6 +365,9 @@ for f in sample_*/*.fastq.gz; do md5sum "$f"; done
 \end{frame}
 
 \begin{frame}[fragile]{Scripts: save your commands in a file}
+\emph{A written SOP that the computer follows to the letter}
+
+\smallskip
 A script is commands saved in a file, so you can run them again
 \begin{lstlisting}
 #!/bin/bash

@@ -4,8 +4,17 @@
 
 \section[HPC]{What is the HPC?}
 
+\begin{frame}{Remember the sequencing run?}
+\begin{itemize}
+    \item 200 FASTQ files, 500 GB in total
+    \item A laptop with 8 GB of memory and a nearly full disk
+    \item An assembler that wants 32 GB of memory and runs for days, for every sample
+\end{itemize}
+\bigskip
+Your laptop cannot do this, and should not have to: this is what the HPC is for
+\end{frame}
+
 \begin{frame}{What is the HPC?}
-\small
 \begin{itemize}
     \item HPC stands for high-performance computing
     \item The HPC is a cluster of computers that work together as a single system
@@ -54,57 +63,44 @@
 \end{frame}
 
 \begin{frame}{Login, compute and transfer nodes}
-\begin{columns}[c]
-    \column{0.5\textwidth}
+\begin{columns}[c,onlytextwidth]
+    \column{0.40\textwidth}
     \small
     \begin{itemize}
-        \item \textbf{Login nodes} (\cmd{hpcs05}, \cmd{hpcs06}): log in, edit scripts, submit jobs.
+        \item \textbf{Login nodes}: log in, edit scripts, submit jobs.
               \alert{Never run analyses here}
         \item \textbf{Compute nodes} (57): where your jobs run.
               You get there through Slurm
-        \item \textbf{Transfer nodes} (\cmd{hpct04}, \cmd{hpct05}): move data to and from the HPC
+        \item \textbf{Transfer nodes}: move data to and from the HPC
         \item \textbf{Shared storage}: every node sees the same files
     \end{itemize}
-    \column{0.48\textwidth}
-    \includegraphics[width=\linewidth]{cluster_draw.png}
+    \column{0.58\textwidth}
+    \includegraphics[width=\linewidth]{diagrams/cluster.pdf}
 \end{columns}
 \end{frame}
 
 \begin{frame}{Slurm decides who runs what, and where}
 \small
+\emph{Slurm is the booking system, like booking the confocal or the sequencer}
 \begin{itemize}
     \item The HPC is shared: hundreds of users, one set of nodes
     \item You ask Slurm for resources: cores, memory, time, disk space
     \item Your job waits in a queue until a node with those resources is free
-    \item Fair share: if your group used little recently, your jobs start sooner
+    \item Fair share: if your group has used little recently, your jobs start sooner
     \item Small, short requests find a free spot faster
 \end{itemize}
 \bigskip
-\begin{center}
-\begin{tikzpicture}[
-        box/.style={draw, rounded corners, align=center, font=\footnotesize,
-                text width=1.9cm, minimum height=1.1cm, fill=structure.fg!8},
-        arr/.style={-{Stealth}, thick}
-    ]
-    \node[box] (you) {You submit\\a job};
-    \node[box, right=0.7cm of you] (queue) {It waits in\\the queue\\(\cmd{PD})};
-    \node[box, right=0.7cm of queue] (slurm) {Slurm finds\\a free node};
-    \node[box, right=0.7cm of slurm] (node) {The node\\runs it\\(\cmd{R})};
-    \draw[arr] (you) -- (queue);
-    \draw[arr] (queue) -- (slurm);
-    \draw[arr] (slurm) -- (node);
-\end{tikzpicture}
-\end{center}
+\diagram{slurm-queue}
 \end{frame}
 
 \begin{frame}{Where to keep your files on the HPC}
 \small
 \begin{cmdtablex}{lllL}
-    \textbf{Where} & \textbf{Path}              & \textbf{Size} & \textbf{Use it for}                         \\
+    \textbf{Where} & \textbf{Path}                  & \textbf{Size} & \textbf{Use it for} \\
     \midrule
-    Home           & \cmd{/home/<group>/<user>} & 7 GB          & Scripts, settings   \\
-    Project        & \cmd{/hpc/<group>/<user>}  & Group quota   & Data and envs       \\
-    tmpspace       & \cmd{/scratch/<jobid>}     & Requested     & Fast job-local disk \\
+    Home           & \cmd{/home/<group>/<user>}     & 7 GB          & Scripts, settings   \\
+    Project        & \cmd{/hpc/<group>/<user>/data} & Group quota   & Data, environments  \\
+    tmpspace       & \cmd{/scratch/<jobid>}         & Per job       & Fast local disk     \\
 \end{cmdtablex}
 
 \medskip
@@ -120,7 +116,7 @@
 \section[Connecting]{Connecting to the HPC}
 \begin{frame}{Using Open OnDemand}
 \small
-Open OnDemand is a web portal to the HPC: browse files, open a terminal, or start RStudio and Jupyter, all in your browser.
+Open OnDemand is a web portal to the HPC\@: browse files, open a terminal, or start RStudio and Jupyter, all in your browser
 Go to one of:
 
 \begin{itemize}
@@ -205,7 +201,6 @@ exit
 \end{frame}
 
 \begin{frame}[fragile]{Conda on the HPC}
-\small
 \begin{itemize}
     \item Environments are large: keep them out of your home directory, or you will hit its quota
     \item Install Miniforge itself in \cmd{/hpc/<group>/<user>/data/miniforge3} too: the installer asks where
@@ -232,7 +227,7 @@ exit                  # close the session for good
 
 \begin{frame}{Exercises: screen (HPC access)}
 \begin{exlist}{4_hpc.md}
-    \ex{4.4}{A screen session}{2}
+    \ex{4.4}{A screen session}{1}
 \end{exlist}
 \end{frame}
 
@@ -248,34 +243,12 @@ A job script is a normal script with \texttt{\#SBATCH} lines at the top:
 
 grep -c "^>" */assembly.fasta
 \end{lstlisting}
-\begin{lstlisting}
+\begin{lstlisting}[style=footnotesize]
 sbatch job.sh
 \end{lstlisting}
 \begin{lstlisting}[style=output]
 Submitted batch job 1234567
 \end{lstlisting}
-\end{frame}
-
-\begin{frame}[fragile]{A real job script: assembling genomes}
-\begin{lstlisting}[style=footnotesize]
-#!/bin/bash
-#SBATCH --job-name=unicycler
-#SBATCH --output=unicycler_%j.log
-#SBATCH --error=unicycler_%j.err
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=32G
-#SBATCH --time=72:00:00
-
-for r1 in *_R1.fastq.gz; do
-    name="${r1%_R1.fastq.gz}"
-    fastp -i "$r1" -I "${name}_R2.fastq.gz" \
-        -o "${name}_1.fq.gz" -O "${name}_2.fq.gz" \
-        --thread "$SLURM_CPUS_PER_TASK"
-    unicycler -1 "${name}_1.fq.gz" -2 "${name}_2.fq.gz" \
-        -o "${name}_assembly" --threads "$SLURM_CPUS_PER_TASK"
-done
-\end{lstlisting}
-\hint{No need to understand every line. Full: \cmd{exercise_data/unicycler_job.sh}}
 \end{frame}
 
 \begin{frame}{\cmd{srun} or \cmd{sbatch}?}
@@ -296,12 +269,11 @@ Test interactively with \cmd{srun}, then put what works in a job script
 \begin{frame}[fragile]{Checking on your jobs}
 \begin{lstlisting}
 squeue                      # everything in the queue
-squeue -u <user>            # only your jobs
+squeue --me                 # only your jobs
 squeue -A <account>         # your group's jobs
 scancel <jobid>             # stop a job
 sacct -j <jobid>            # a job that has finished
 \end{lstlisting}
-\small
 \begin{itemize}
     \item State \cmd{PD}: pending, waiting for resources.
           The last column says why
@@ -317,6 +289,9 @@ sacct -j <jobid>            # a job that has finished
 \end{frame}
 
 \begin{frame}{Requesting resources does not equal using them}
+\emph{Like booking the confocal for a whole day and using it for an hour}
+
+\medskip
 \begin{itemize}
     \item Requested resources are reserved for you: nobody else can use them, even when your job does not
     \item Tell your tool to use them, usually with an option like
@@ -380,36 +355,6 @@ What went wrong, and what would you request next time?
     \item Move big data through the transfer nodes
     \item Clean up: remove data you no longer need from the project directory
     \item Stuck?
-          Ask your colleagues, or email \cmd{hpcsupport@umcutrecht.nl}
+          Ask your colleagues
 \end{itemize}
 \end{frame}
-
-\begin{frame}{What you learned today, and where to get help}
-\small
-\begin{columns}[T,onlytextwidth]
-    \column{0.44\textwidth}
-    \textbf{Today}
-    \begin{itemize}
-        \item Move around, work with files, \cmd{find}, \cmd{grep}, loops and scripts
-        \item Save your work with Git and GitHub
-        \item Install tools in Conda environments
-        \item Log in to the HPC, and run jobs with \cmd{srun} and \cmd{sbatch}
-    \end{itemize}
-    \column{0.52\textwidth}
-    \textbf{Help}
-    \begin{itemize}
-        \item \cmd{<command> --help} and \mbox{\cmd{man <command>}}
-        \item \cmd{exercises/}, and the answers in \cmd{exercises/solutions/}
-        \item \cmd{hpcsupport@umcutrecht.nl}
-    \end{itemize}
-\end{columns}
-
-\bigskip
-Those 200 FASTQ files? Check them with \cmd{md5sum}, keep your script in Git,
-install the assembler with Conda, and run it with \cmd{sbatch}
-
-\medskip
-\textbf{Next steps}: the Software Carpentry lessons on the shell and Git
-(\link{https://software-carpentry.org/lessons})
-\end{frame}
-

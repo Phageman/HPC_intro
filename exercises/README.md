@@ -8,6 +8,7 @@ The exercises follow the slides. When a slide says "Exercises 1.1–1.4", do tho
 | [2_git.md](2_git.md) | Git |
 | [3_conda.md](3_conda.md) | Package management |
 | [4_hpc.md](4_hpc.md) | Connecting to and working on the HPC |
+| [5_pipelines.md](5_pipelines.md) | Running pipelines |
 
 ## Difficulty
 
@@ -32,7 +33,7 @@ cd HPC_intro/exercise_data
 
 All exercises start in your `HPC_intro/exercise_data`
 (laptop: `~/HPC_intro/exercise_data`, HPC: `/hpc/<group>/<user>/data/HPC_intro/exercise_data`).
-Not everyone needs the HPC: the exercises in part 4 say which ones work without it.
+Not everyone needs the HPC: the exercises in parts 4 and 5 say which ones work without it.
 
 `<...>` means: fill in your own value, without the `< >`.
 

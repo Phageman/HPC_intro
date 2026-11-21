@@ -5,8 +5,16 @@ Start in your `HPC_intro/exercise_data`.
 
 ### 3.1 Install Miniforge ●
 
-Install Miniforge as on the "Install Miniforge" slide.
-When the installer asks to initialize conda, type `yes`.
+Download the installer for your computer and run it (Mac, Linux and WSL):
+
+```bash
+m=https://github.com/conda-forge/miniforge
+f=Miniforge3-$(uname)-$(uname -m).sh
+curl -LO $m/releases/latest/download/$f
+bash $f
+```
+
+When the installer asks to initialize Conda, type `yes`.
 On the HPC, when it asks where to install, type `/hpc/<group>/<user>/data/miniforge3`.
 
 Then close your terminal and open a new one.
@@ -47,7 +55,8 @@ Deactivate the environment, and list all your environments.
 
 ### 3.6 Share your environment ●●●
 
-Export your environment to a file, then commit and push it to your fork.
+Export your environment to a file: the reagent list for your methods section.
+Did the Git exercises for your own code? Then commit and push it to your fork.
 
 ```bash
 conda env export -n qc --from-history > environment.yml
@@ -56,4 +65,4 @@ conda env export -n qc --from-history > environment.yml
 `--from-history` saves only the packages you asked for, so the file also works on other
 systems (Mac, Linux). Without it, every exact package build for your system is listed.
 
-*Expected:* `environment.yml` is in your fork on GitHub
+*Expected:* `environment.yml` lists `seqkit`, and anything else you installed with `conda install`

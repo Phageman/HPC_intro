@@ -36,7 +36,7 @@ rm -r backup_B                       # clean up
 ## 4.6 Run your job script
 # bash job.sh                        # no HPC access
 # sbatch job.sh                      # HPC access
-# squeue -u <user>
+# squeue --me
 # cat count_<jobid>.log
 
 ## 4.7 What went wrong?

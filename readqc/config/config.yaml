@@ -1,0 +1,4 @@
+samplesheet: "config/sample_table.csv"
+
+fastp:
+  min_length: 50 # drop reads shorter than this after trimming

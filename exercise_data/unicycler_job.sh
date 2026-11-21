@@ -7,20 +7,20 @@
 #SBATCH --time=72:00:00
 
 # Trim paired reads with fastp, then assemble them with Unicycler.
-# Run with: sbatch unicycler_job.sh   (in the directory with the reads)
+# Run with: sbatch unicycler_job.sh   (in exercise_data, next to the sample_* directories)
 # fastp and unicycler must be available, e.g. in an active Conda environment.
 
 threads="${SLURM_CPUS_PER_TASK:-1}"
 
-# Go through all R1 fastq files in the current directory
-for r1_file in *_R1*.fastq*; do
+# Go through the R1 fastq files in each sample directory
+for r1_file in */*_R1*.fastq*; do
     # Get the name of the paired read
     r2_file="${r1_file/_R1/_R2}"
 
     # If the paired read exists, continue; otherwise skip the file
     if [[ -f "${r2_file}" ]]; then
         echo "Processing pair: R1: ${r1_file}, R2: ${r2_file}"
-        base_name=$(basename "${r1_file}" | sed 's/_R1.*//')
+        base_name="${r1_file%%_R1*}"   # e.g. sample_A/sample_A: output goes next to the reads
 
         printf "Starting fastp for %s\n" "${base_name}"
         fastp \

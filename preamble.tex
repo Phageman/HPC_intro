@@ -1,7 +1,7 @@
 %% ====================================================================
 %% Command line and HPC workshop: shared preamble for all decks
 %% Each deck (1_command_line_basics.tex, 2_git.tex, 3_package_management.tex,
-%% 4_hpc.tex) loads this file and inputs its slides from sections/.
+%% 4_hpc.tex, 5_pipelines.tex) loads this file and inputs its slides from sections/.
 %% Build:  latexmk   (settings in latexmkrc)
 %% Format: latexindent -l -s -w -c=/tmp *.tex sections/*.tex
 %% Check:  chktex -l chktexrc *.tex sections/*.tex
@@ -22,13 +22,11 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{dirtree}   % directory trees on the pipeline slides
 \usepackage{listings}
 % Keep -- as two dashes in typewriter text (--help, --mem, ...)
 \usepackage{microtype}
 \DisableLigatures[-]{encoding=T1,family=tt*}
-% Small diagram drawn in the slides (Slurm queue in sections/hpc.tex)
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
 
 \graphicspath{{images/}}
 
@@ -47,7 +45,7 @@
 % spaces before it become part of the code block.
 \lstset{
     language=bash,
-    deletekeywords={set,env,export},
+    deletekeywords={set,env,export,type,history,exec},
     basicstyle=\ttfamily\small,
     keywordstyle=\color{magenta},
     commentstyle=\color{codegreen},
@@ -93,7 +91,7 @@
 % Centred diagram from images/diagrams/<name>.pdf (made from <name>.drawio)
 \newcommand{\diagram}[1]{{\centering\includegraphics{images/diagrams/#1.pdf}\par}}
 % Small note under a code block
-\newcommand{\hint}[1]{{\footnotesize #1}}
+\newcommand{\hint}[1]{{\footnotesize #1\par}}
 % Clickable link, shown like \cmd: \link{https://example.org}
 \newcommand{\link}[1]{\href{#1}{\texttt{#1}}}
 
@@ -132,12 +130,12 @@
 \setbeamertemplate{navigation symbols}{}
 % Show slide numbers
 \setbeamertemplate{footline}[frame number]
-% Darker greyed-out sections on the "Next section" slides
+% Darker greyed-out sections on the "Next up" slides
 \setbeamertemplate{section in toc shaded}[default][60]
 % Short section names for the header: \section[Short]{Full name}
 % Show the table of contents at the start of every section
 \AtBeginSection[]{
-    \begin{frame}{Next section}
+    \begin{frame}{Next up}
         \tableofcontents[currentsection, hideallsubsections]
     \end{frame}
 }
@@ -167,5 +165,5 @@
         \includegraphics[height=.12\textheight]{logo/mmbbioit.png}\par}
     \end{frame}}
 
-% For decks with a single section: no "Next section" slide
+% For decks with a single section: no "Next up" slide at the start
 \newcommand{\nosectionslide}{\AtBeginSection[]{}}

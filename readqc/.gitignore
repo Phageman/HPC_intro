@@ -1,0 +1,14 @@
+.DS_Store
+.snakemake
+results*/*
+mock_*
+*.out
+sample_table.csv
+.bash_history
+workflow/pep/*.yaml
+pipeline_*.log
+reads*/*
+Reads*/*
+logs/*
+*.log
+benchmarks/*

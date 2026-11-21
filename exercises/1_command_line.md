@@ -61,6 +61,7 @@ then delete `old.txt`.
 ### 1.9 Check the reads ●
 
 The sequencing company sent `MD5.txt` with the reads. Check all reads against it.
+Mac: no `md5sum`? Install it with `brew install coreutils`.
 
 *Expected:* one file `FAILED`. Which one would you ask them to send again?
 
