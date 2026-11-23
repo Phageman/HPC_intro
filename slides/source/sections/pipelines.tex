@@ -3,66 +3,67 @@
 %% ====================================================================
 
 \section[Pipelines]{Running pipelines with Snakemake}
-\begin{frame}{Why a pipeline instead of one big job script?}
-\small
+\begin{frame}{What is a pipeline?}
+A pipeline is a series of analysis steps, run one after the other
+\begin{itemize}
+    \item Each step's output is the next step's input
+    \item The same steps run for every sample
+\end{itemize}
+
+\bigskip
+\diagram{pipeline-steps}
+
+\bigskip
+A loop in a job script is already a small pipeline.
+A \emph{workflow manager} does the bookkeeping for you:
+which step comes next, what is done, what failed
+\end{frame}
+
+\begin{frame}{One job script or a Snakemake pipeline?}
+\diagram{jobscript-vs-snakemake}
+\medskip
+
+\footnotesize
 \begin{cmdtablex}{lLL}
                   & \textbf{One job script}                & \textbf{A Snakemake pipeline}             \\
     \midrule
-    Jobs          & One big job: samples one after another & One job per step and sample, many at once \\
     A step fails  & Start everything again                 & Fix it: only failed and missing steps run \\
     Resources     & Booked for the biggest step, all along & Each step books what it needs             \\
-    Keeping track & You check which samples are done       & Snakemake checks the files                \\
 \end{cmdtablex}
-
-\bigskip
-The lab's pipelines are Snakemake pipelines: you run them, you do not have to write them
 \end{frame}
 
-\begin{frame}{A pipeline runs every step, for every sample}
+\begin{frame}{We use Snakemake}
+\begin{itemize}
+    \item All the lab's pipelines are Snakemake pipelines
+    \item It uses what you learned today:
+          Conda for the tools, Slurm for the jobs
+    \item A step is a \emph{rule}: input files in, output files out
+    \item Snakemake checks which files exist, and runs only what is missing
+\end{itemize}
+
+\bigskip
+You run the lab's pipelines: you do not have to write them
+\end{frame}
+
+\begin{frame}{An example: \texttt{readqc}, the pipeline you run today}
 \diagram{readqc-dag}
 
 \bigskip
 \begin{itemize}
-    \item Each step's output is the next step's input: Snakemake works out the order
+    \item \cmd{fastp} trims the reads, \cmd{seqkit_stats} counts them,
+          \cmd{merge_stats} puts all samples in one table
+    \item Snakemake works out the order from the files
     \item Every step runs as its own Slurm job, many at the same time
-    \item Run it again and only missing or failed steps run
-    \item The lab's pipelines are Snakemake pipelines, laid out like today's example:
-          \cmd{HPC_intro/readqc}
+    \item In \cmd{HPC_intro/readqc}, laid out like the lab's real pipelines
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Inside a pipeline directory}
-\small
-\DTsetlength{0.2em}{1em}{0.2em}{0.4pt}{1.6pt}
-\renewcommand*\DTstyle{\ttfamily}
-\renewcommand*\DTstylecomment{\rmfamily\footnotesize\color{darkgray}}
-\dirtree{%
-.1 readqc/.
-.2 README.md\DTcomment{how to install and run it}.
-.2 snakemake\_*\_conda\_spec.txt\DTcomment{to create the \texttt{snakemake} env}.
-.2 \alert{config/}\DTcomment{\alert{yours: what to run on, and how}}.
-.3 \alert{config.yaml}\DTcomment{the settings, e.g.\ \texttt{min\_length}}.
-.3 \alert{sample\_table.csv}\DTcomment{your samples: you write this}.
-.2 workflow/\DTcomment{the pipeline itself: leave it as it is}.
-.3 Snakefile\DTcomment{the start: loads the rules}.
-.3 rules/\DTcomment{the steps, e.g.\ \texttt{qc.smk}}.
-.3 envs/\DTcomment{the tools, with their exact versions}.
-.3 profiles/\DTcomment{how to run: \texttt{hpc\_slurm/} or \texttt{local/}}.
-.3 schemas/\DTcomment{checks your config and sample sheet}.
-.2 results/, logs/\DTcomment{appear when you run it}.
-}
-
-\bigskip
-The lab's pipelines have the same layout: \alert{\texttt{config/}} is yours,
-\texttt{workflow/} is the pipeline
-\end{frame}
-
 \begin{frame}[fragile]{A step is a \emph{rule}: from input files to output files}
-\begin{lstlisting}[style=footnotesize]
+\begin{lstlisting}[style=scriptsize]
 rule seqkit_stats:
     input:
-        rules.fastp.output.fwd,
-        rules.fastp.output.rev,
+        "results/{sample}/01_trim/{sample}_trimmed_R1.fastq.gz",
+        "results/{sample}/01_trim/{sample}_trimmed_R2.fastq.gz",
     output:
         "results/{sample}/02_stats/{sample}_stats.tsv",
     conda:
@@ -72,48 +73,82 @@ rule seqkit_stats:
     shell:
         "seqkit stats -a -T {input} > {output} 2> {log}"
 \end{lstlisting}
-\hint{From \cmd{readqc/workflow/rules/qc.smk}}
+\hint{Simplified from \cmd{readqc/workflow/rules/qc.smk}}
+
+\medskip
+\footnotesize
+\begin{itemize}
+    \item \cmd{input} and \cmd{output}: the files the step needs and the files it makes
+    \item \cmd{{sample}} is filled in for every sample in your sample sheet
+    \item \cmd{shell}: the command; \cmd{{input}}, \cmd{{output}} and \cmd{{log}}
+          are filled in from above
+\end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{The sample sheet: which reads belong to which sample}
-You write it yourself: one line per sample, the columns separated by commas
-\begin{lstlisting}[style=scriptsize,language={}]
-sample_name,fastq_r1,fastq_r2
-sample_A,../exercise_data/sample_A/sample_A_R1.fastq.gz,../exercise_data/sample_A/sample_A_R2.fastq.gz
-\end{lstlisting}
-\small
-\begin{cmdtablex}{lL}
-    \textbf{Column}     & \textbf{What goes in it}                       \\
-    \midrule
-    \cmd{sample_name}   & The name: it becomes \cmd{results/<sample>/}   \\
-    \cmd{fastq_r1}      & Where the R1 reads are                         \\
-    \cmd{fastq_r2}      & Where the R2 reads are                         \\
-\end{cmdtablex}
+\begin{frame}{Rules are linked by their files}
+\diagram{rule-files}
 
 \bigskip
-Paths start from \cmd{readqc}, so \cmd{../exercise_data} is one directory up.
-The first line, with the column names, must stay exactly as it is
+\begin{itemize}
+    \item Snakemake looks at which rule makes each input file, and works out the order
+    \item You never tell it the order yourself
+    \item A file that is already there is not made again,
+          unless its input or its settings changed
+\end{itemize}
+\end{frame}
+
+% Tree comments: a short gap instead of dotted leaders
+\renewcommand*\DTcomment[1]{\hspace{2em}{\DTstylecomment #1}}
+\begin{frame}{Inside a pipeline directory}
+\DTsetlength{0.2em}{1em}{0.2em}{0.4pt}{1.6pt}
+\renewcommand*\DTstyle{\ttfamily}
+\renewcommand*\DTstylecomment{\sffamily\color{darkgray}}
+\dirtree{%
+.1 readqc/.
+.2 README.md\DTcomment{how to install and run it}.
+.2 \alert{config/}\DTcomment{\alert{yours}}.
+.3 \alert{config.yaml}\DTcomment{the settings}.
+.3 \alert{sample\_table.csv}\DTcomment{your samples}.
+.2 workflow/\DTcomment{the pipeline: leave it as it is}.
+.2 results/, logs/\DTcomment{appear when you run it}.
+}
+\end{frame}
+
+\begin{frame}{The sample sheet: which reads belong to which sample}
+\cmd{config/sample_table.csv}
+
+\medskip
+\footnotesize
+\begin{cmdtable}{lll}
+    \cmd{sample_name} & \cmd{fastq_r1}                 & \cmd{fastq_r2}                 \\
+    \midrule
+    \cmd{sample_A}    & \cmd{../sample_A_R1.fastq.gz}  & \cmd{../sample_A_R2.fastq.gz}  \\
+    \cmd{sample_B}    & \cmd{../sample_B_R1.fastq.gz}  & \cmd{../sample_B_R2.fastq.gz}  \\
+    \cmd{sample_C}    & \cmd{../sample_C_R1.fastq.gz}  & \cmd{../sample_C_R2.fastq.gz}  \\
+\end{cmdtable}
 \end{frame}
 
 \begin{frame}[fragile]{Running a pipeline on the HPC}
 In \cmd{readqc}, on the login node (fine: Snakemake only submits jobs)
-\begin{lstlisting}[style=footnotesize]
-conda activate snakemake       # create it once, see README
-
+\begin{lstlisting}[style=scriptsize]
+conda activate snakemake       # create it once: exercise 5.1
 # 1. sample sheet: which reads belong to which sample
 nano config/sample_table.csv
 
 # 2. dry run: what would run? Nothing runs yet
 snakemake -j unlimited -n \
     --workflow-profile workflow/profiles/hpc_slurm/
+#  -n                  dry run: only show the steps
+#  -j unlimited        as many Slurm jobs at once as needed
+#  --workflow-profile  the directory with the Slurm settings
+#  \ at the end        the command goes on on the next line
 
-# 3. run it: Snakemake submits every step to Slurm
-snakemake -j unlimited \
-    --workflow-profile workflow/profiles/hpc_slurm/
+# 3. run it: the same command without -n
+#    first run: a few minutes while Snakemake installs the tools
 \end{lstlisting}
-\hint{Start it in \cmd{screen}: Snakemake keeps going until the last job is done.
-    On your laptop: \cmd{--workflow-profile workflow/profiles/local/}}
-\hint{Not in Slurm account \cmd{dla_mm}? Set \cmd{slurm_account} in the profile}
+\hint{Run it in \cmd{screen}: it keeps going until the last job is done}
+\smallskip
+\hint{On your laptop, use \cmd{--workflow-profile workflow/profiles/local/}}
 \end{frame}
 
 \begin{frame}{Exercises: a Snakemake pipeline}

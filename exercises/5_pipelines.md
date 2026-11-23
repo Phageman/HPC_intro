@@ -35,8 +35,9 @@ On a Mac with an Apple chip, use `snakemake_osx-arm64_conda_spec.txt` in 5.1.
    Add a line for `sample_B` and one for `sample_C` the same way.
    Use `ls ../exercise_data/sample_B` to check the file names.
 
-3. **HPC access**: check the Slurm account in `workflow/profiles/hpc_slurm/config.v8+.yaml`.
-   It says `slurm_account: "dla_mm"`. If your group's account is `umcu_mmb_nd`, change it with `nano`.
+3. **HPC access**: fill in your Slurm account in `workflow/profiles/hpc_slurm/config.v8+.yaml`.
+   It says `slurm_account: ""`. With `nano`, put your group's account between the quotes:
+   `"dla_mm"` or `"umcu_mmb_nd"`.
 
 *Expected:* `cat config/sample_table.csv` shows the column names and three lines:
 `sample_A`, `sample_B` and `sample_C`, each with an R1 and an R2 file.

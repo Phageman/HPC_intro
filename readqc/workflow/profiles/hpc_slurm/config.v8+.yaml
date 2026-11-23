@@ -2,7 +2,7 @@ executor: slurm
 
 default-resources:
   slurm_partition: "cpu"
-  slurm_account: "dla_mm"   # your group's Slurm account, e.g. "umcu_mmb_nd"
+  slurm_account: ""   # fill in your group's Slurm account, e.g. "dla_mm" or "umcu_mmb_nd"
   mem_mb: 1000
   runtime: 10
 
