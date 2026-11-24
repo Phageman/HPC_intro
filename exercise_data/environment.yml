@@ -1,0 +1,7 @@
+name: qc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - seqkit
+prefix: /hpc/dla_mm/phaas/data/miniforge3/envs/qc
